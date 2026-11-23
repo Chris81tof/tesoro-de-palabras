@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { cardErrors, AREAS } from "../js/core/cards.js";
+import { cardErrors, AREAS, cue } from "../js/core/cards.js";
 
 const load = (f) => JSON.parse(readFileSync(new URL("../data/" + f, import.meta.url), "utf8"));
 const cards = load("cards.json");
@@ -29,4 +29,11 @@ test("Beispielkarten decken die Besonderheiten ab", () => {
   assert.ok(examples.some((c) => (c.variants || []).some((v) => v.vulgar)), "vulgäre Form");
   assert.ok(examples.some((c) => c.unsure || (c.variants || []).some((v) => v.unsure)), "unsicher");
   assert.ok(examples.some((c) => c.cat === "Falscher Freund" && c.xref), "Falscher Freund mit xref");
+});
+test("Bedeutungsübung geht ohne prompt: jede Karte hat eine Frage, und es gibt genug Karten", () => {
+  assert.ok(all.every((c) => cue(c)));
+  assert.ok(all.filter((c) => cue({ de: c.de })).length >= 4);
+});
+test("Beispielkarten haben eine spanische Erklärung (prompt)", () => {
+  assert.ok(examples.every((c) => c.prompt));
 });

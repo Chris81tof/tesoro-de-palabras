@@ -36,6 +36,15 @@ export function properNames(text) {
   return out;
 }
 
+// Ganzes Wort oder ganze Wortfolge im Text (ohne Rücksicht auf Groß-/Kleinschreibung)
+export function hasPhrase(text, phrase) {
+  const p = norm(phrase).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return !!p && new RegExp(`(^|[^\\p{L}])${p}($|[^\\p{L}])`, "iu").test(String(text));
+}
+
+// Was die Bedeutungsübung und das Erklären als Frage zeigen: deutsche Bedeutung, sonst spanische Erklärung
+export const cue = (c) => c.de || c.prompt || "";
+
 // Prüft eine Karte und gibt Fehlermeldungen (deutsch) zurück. Verändert nichts.
 export function cardErrors(c) {
   const e = [];
@@ -83,6 +92,11 @@ export function cardErrors(c) {
   if (c.xref !== undefined) {
     if (!c.xref || typeof c.xref !== "object" || Array.isArray(c.xref) || !Object.keys(c.xref).length) add("„xref“ braucht Einträge je Sprache.");
     else if (Object.entries(c.xref).some(([k, v]) => !XREF_LANGS.includes(k) || !str(v))) add("„xref“ erlaubt nur IT, FR, PT, DE, EN mit Text.");
+  }
+  if (c.plain) {
+    // Die schlichte Fassung (Umformulieren) darf weder Wendung noch Lösung noch Auslöser enthalten.
+    const leaks = [c.term, c.trigger, ...ans].filter(Boolean).filter((x) => hasPhrase(c.plain, x));
+    if (leaks.length) add(`„plain“ enthält ${[...new Set(leaks)].map((x) => `„${x}“`).join(", ")}.`);
   }
   if (c.area === "schule") {
     const texts = [c.term, c.sentence, c.plain, c.prompt,...(c.variants || []).map((v) => v.example)].filter(Boolean);

@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { cardErrors, properNames, HAS_INF, answersOf } from "../js/core/cards.js";
+import { cardErrors, properNames, HAS_INF, answersOf, hasPhrase, cue } from "../js/core/cards.js";
 
 const base = {
   id: "x99", area: "allgemein", cat: "Kollokation", term: "tomar una decisión", de: "eine Entscheidung treffen",
@@ -53,3 +53,16 @@ test("Eigennamen: Satzanfang ok, Name mitten im Satz nicht", () => {
   assert.ok(errs({ area: "schule", topic: "Fehlzeiten", sentence: "Hablé con Marta sobre ____." }).length);
 });
 test("answersOf trennt mit |", () => assert.deepEqual(answersOf({ answer: "a | b|c" }), ["a", "b", "c"]));
+
+test("plain darf weder Wendung noch Lösung noch Auslöser enthalten", () => {
+  assert.ok(errs({ plain: "Hay que tomar una decisión." }).length, "term");
+  assert.ok(errs({ plain: "Hay que tomar nota." }).length, "Lösung");
+  assert.ok(errs({ cat: "Subjuntivo-Auslöser", trigger: "es posible que", sentence: "Es posible que ____ (venir) hoy.", answer: "venga", wrong: undefined, plain: "Quizá, pero es posible que no." }).length, "trigger");
+  assert.deepEqual(errs({ plain: "Hay que decidir." }), []);
+  assert.ok(hasPhrase("Ella viene hoy", "viene") && !hasPhrase("Ella conviene hoy", "viene"), "ganze Wörter");
+});
+test("Bedeutungsübung: cue funktioniert ohne prompt", () => {
+  assert.equal(cue({ de: "vielleicht" }), "vielleicht");
+  assert.equal(cue({ prompt: "duda" }), "duda");
+  assert.equal(cue({}), "");
+});
