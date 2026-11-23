@@ -8,10 +8,12 @@ import { today } from "../core/dates.js";
 import { icon } from "../core/icons.js";
 import { REG, REGION, AREAS, modeLabel } from "../core/cards.js";
 import { viewOf, regionLabel } from "../core/variants.js";
+import { openEditor } from "./editor.js";
+import { isEditable } from "../core/edit.js";
 import { PAGE, STAT_OPTS, filterCards, categoriesOf, statusLabel, nextShown, restCount, toggleOne, toggleIn, regionOptions, levelOptions, levelOf, isEdited } from "../core/library.js";
 
 // tool: das offene Werkzeug, expanded: die aufgeklappte Karte, shown: wie viele Karten gezeichnet werden
-const ui = { q: "", cat: "all", stat: "all", region: "all", level: "all", shown: PAGE, tool: "", expanded: "", selecting: false, picked: new Set(), areaFilter: "all" };
+const ui = { editing: undefined, scrollY: 0, q: "", cat: "all", stat: "all", region: "all", level: "all", shown: PAGE, tool: "", expanded: "", selecting: false, picked: new Set(), areaFilter: "all" };
 let flash = {};
 let io = null;
 
@@ -78,7 +80,8 @@ function detailHtml(app, c, day) {
     (c.hint ? `<p>Eigener Hinweis: ${esc(c.hint)}</p>` : "") +
     (p && p.seen ? `<p>Nächste Wiederholung: ${p.due <= day ? "heute fällig" : "in " + (p.due - day) + " Tagen"}</p>` : "") +
     `<p class="hint">ID ${esc(c.id)}</p>` +
-    (isExample(c) ? '<p class="hint">Beispielkarten entfernst du in den Einstellungen.</p>' : `<div class="acts"><button type="button" data-del="${esc(c.id)}" aria-label="${esc(c.term)} entfernen">Entfernen</button></div>`);
+    (isExample(c) ? '<p class="hint">Beispielkarten kannst du nicht bearbeiten und entfernst sie in den Einstellungen. Lege dafür eine eigene Karte an.</p>'
+      : `<div class="acts"><button type="button" data-edit="${esc(c.id)}">${icon("edit")} Bearbeiten</button><button type="button" data-del="${esc(c.id)}" aria-label="${esc(c.term)} entfernen">Entfernen</button></div>`);
 }
 
 const tool = (id, title, body) => {
@@ -96,6 +99,18 @@ export function render(root, app) {
   leave();
   const rerender = () => render(root, app);
   const { state } = app;
+  // Bearbeiten und Anlegen ersetzen die Seite, danach geht es zurück zur Liste
+  if (ui.editing !== undefined) {
+    const target = ui.editing;
+    openEditor(root, app, target, (saved, id) => {
+      if (saved) { flash.addMsg = [target === null ? "Karte angelegt." : "Karte gespeichert.", "ok"]; if (id) { ui.expanded = id; ui.q = ""; } }
+      ui.editing = undefined;
+      rerender();
+      window.scrollTo(0, ui.scrollY || 0);
+    }, state.prefs.area === GESAMT ? "allgemein" : state.prefs.area);
+    window.scrollTo(0, 0);
+    return;
+  }
   root.classList.add("libpage");
   const gesamt = state.prefs.area === GESAMT;
   const inScope = gesamt ? app.cards() : app.areaCards();
@@ -105,7 +120,7 @@ export function render(root, app) {
   const hasExamples = !state.examples.removed;
   let h = `<div class="sessionbar"><h1 class="withicon">${icon("library")}Sammlung · ${esc(gesamt ? "Gesamt" : AREAS[area])}</h1><a class="small btnlink iconbtn" href="#settings" aria-label="Einstellungen">${icon("settings")}</a></div>`;
   h += '<div class="tools">' +
-    tool("add", "Eigene Karte anlegen", '<p class="hint">Das Formular kommt mit Schritt 7 (Karten bearbeiten und anlegen).</p>') +
+    tool("add", "Eigene Karte anlegen", '<p class="hint">Eine eigene Wendung mit Satz, Lösung und Hilfen anlegen, in „Allgemein“ oder „Schulgespräche“. Das Formular prüft alles wie der Import.</p><button type="button" class="primary" id="addBtn">Neue Karte anlegen</button>' + msg("addMsg")) +
     tool("claude", "Neue Karten von Claude", '<p class="hint">Prompt zum Kopieren und Import per JSON kommen mit Schritt 8.</p>') +
     tool("backup", "Sichern und Wiederherstellen", '<p class="hint">Sicherung und Wiederherstellung kommen mit Schritt 9.</p>') +
     tool("reset", "Zurücksetzen", '<p class="hint">Setzt den Lernstand aller Karten (auch der Beispielkarten) zurück. Karten, eigene Karten und Einstellungen bleiben.</p>' +
@@ -148,6 +163,7 @@ export function render(root, app) {
       t.querySelector(".toolbody").hidden = !open;
     });
   }));
+  root.querySelector("#addBtn").addEventListener("click", () => { ui.scrollY = window.scrollY; ui.editing = null; rerender(); });
   const rs = root.querySelector("#rsBtn");
   armed(rs, "Sicher? Der Lernstand geht verloren", () => {
     state.progress = {};
@@ -190,6 +206,8 @@ export function render(root, app) {
     const row = e.target.closest(".lrow");
     if (!row) return;
     const id = row.dataset.id;
+    const edit = e.target.closest("[data-edit]");
+    if (edit) { ui.scrollY = window.scrollY; ui.editing = edit.dataset.edit; rerender(); return; }
     const del = e.target.closest("[data-del]");
     if (del) {
       if (del.dataset.armed !== "1") {

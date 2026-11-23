@@ -1,7 +1,7 @@
 /* Kopf: Bereichsumschalter */
 #top { position: sticky; top: 0; z-index: 5; background: var(--paper); border-bottom: 2px solid var(--line); padding: env(safe-area-inset-top) 12px 0; }
 .areabar { display: flex; gap: 6px; max-width: 720px; margin: 0 auto; padding: 6px 0; align-items: center; }
-.areabar .seg { display: flex; flex: 1; gap: 4px; }
+.areabar .seg { display: flex; flex: 1; gap: 4px; min-width: 0; }
 .areabar .seg button { flex: 1; min-width: 0; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 0 6px; font-size: .9rem; }
 .areabar .seg button[aria-pressed="true"] { background: var(--cobalt); border-color: var(--cobalt); color: var(--paper); font-weight: 600; }
 .areabar a.iconbtn { flex: none; display: flex; align-items: center; justify-content: center; width: var(--tap); min-height: var(--tap); border: 1.5px solid var(--ink-2); border-radius: var(--radius); color: var(--ink); }
@@ -148,3 +148,29 @@ textarea.tall { min-height: 12rem; }
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .edited { font-family: var(--sans); font-size: .75rem; border: 1px solid var(--ochre); border-radius: 4px; padding: 0 4px; }
 a.btnlink { display: inline-flex; align-items: center; justify-content: center; text-decoration: none; border: 1.5px solid var(--ink-2); border-radius: var(--radius); color: var(--ink); }
+
+/* Bearbeiten */
+.card.editable { position: relative; padding-right: 54px; }
+.editbtn { position: absolute; top: 4px; right: 4px; width: var(--tap); height: var(--tap); display: flex; align-items: center; justify-content: center; padding: 0; border: 0; background: transparent; }
+.form { display: grid; gap: 4px; }
+.form label { display: grid; gap: 4px; margin: 8px 0; font-family: var(--sans); font-size: .85rem; color: var(--ink-2); }
+.form label.check { display: flex; align-items: center; gap: 8px; min-height: var(--tap); }
+.form label.check input { width: 22px; height: 22px; }
+.fgroup { border: 1.5px solid var(--line); border-radius: var(--radius); padding: 0 12px 6px; margin: 8px 0; }
+.fgroup summary { min-height: var(--tap); display: flex; align-items: center; cursor: pointer; font-weight: 600; font-family: var(--sans); }
+.vrow, .wrongset { border: 1px dashed var(--ochre); border-radius: var(--radius); padding: 6px 10px; margin: 8px 0; display: grid; gap: 4px; }
+.vrow legend, .wrongset legend { font-family: var(--sans); font-size: .8rem; color: var(--ink-2); }
+.msg ul { margin: 4px 0; padding-left: 20px; }
+.form label.check input { flex: none; }
+.form input, .form select, .form textarea { min-width: 0; max-width: 100%; }
+
+/* Schmale Bildschirme: kurze Namen im Bereichsumschalter */
+.areabar .short { display: none; }
+@media (max-width: 380px) {
+  .areabar .long { display: none; }
+  .areabar .short { display: inline; }
+}
+.areabar .seg button { white-space: nowrap; overflow: hidden; }
+
+.seg2 { flex-wrap: wrap; }
+.seg2 button { min-width: 0; padding: 0 8px; }

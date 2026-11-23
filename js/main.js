@@ -20,6 +20,7 @@ const TABS = [
   { id: "library", label: "Sammlung", view: libraryView }
 ];
 const PAGES = [{ id: "settings", view: settingsView }];
+const SHORT = { schule: "Schule" };
 const VIEWS = { ...AREAS, [GESAMT]: "Gesamt" };
 
 async function boot() {
@@ -54,7 +55,7 @@ async function boot() {
   const top = $("top");
   function drawTop() {
     top.innerHTML = '<div class="areabar"><div class="seg" role="group" aria-label="Bereich">' +
-      Object.entries(VIEWS).map(([k, v]) => `<button type="button" data-area="${k}" aria-pressed="${app.state.prefs.area === k}">${icon(k)}<span>${esc(v)}</span></button>`).join("") +
+      Object.entries(VIEWS).map(([k, v]) => `<button type="button" data-area="${k}" aria-label="${esc(v)}" aria-pressed="${app.state.prefs.area === k}">${icon(k)}<span class="long">${esc(v)}</span><span class="short" aria-hidden="true">${esc(SHORT[k] || v)}</span></button>`).join("") +
       `</div><a class="iconbtn" href="#settings" aria-label="Einstellungen">${icon("settings")}</a></div>`;
     top.querySelectorAll("button[data-area]").forEach((b) => b.addEventListener("click", () => app.setArea(b.dataset.area)));
   }

@@ -18,6 +18,7 @@ import * as produce from "../exercises/produce.js";
 import * as cloze from "./cloze.js";
 import * as passive from "./passive.js";
 import { needArea } from "./today.js";
+import { openEditor, editBtn, bindEdit } from "./editor.js";
 
 const EX = { meaning, cards, explain, choice, gap, translate, error, rewrite, produce };
 const SCOPES = { due: "Heute fällig", open: "Alle nicht gemeisterten", problem: "Nur problematische", all: "Alle Karten" };
@@ -166,7 +167,18 @@ function renderSession(root, app) {
   while (s.queue.length && !byId.has(s.queue[0])) s.queue.shift();
   const c = byId.get(s.queue[0]);
   if (!c) { renderSummary(box, root, app); return; }
+  // Bearbeiten: nichts wird verbucht, die Karte gilt als übersprungen und kommt danach korrigiert wieder.
+  if (s.editing === c.id) {
+    openEditor(box, app, c.id, () => { s.editing = null; s.cards = app.cards(); reset(); s.rerender(); });
+    return;
+  }
   EX[s.mode].render(box, c, s);
+  const card = box.querySelector(".card");
+  if (card) {
+    card.classList.add("editable");
+    card.insertAdjacentHTML("afterbegin", editBtn(c));
+    bindEdit(card, () => { reset(); s.editing = c.id; s.rerender(); });
+  }
 }
 
 function renderSummary(box, root, app) {

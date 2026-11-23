@@ -73,6 +73,12 @@ Optional: `prompt` (spanische Erklärung), `wrong` (genau 3), `plain`, `reg`, `r
 - **Akzent-Paare mit Bedeutungsunterschied** (si/sí, el/él, esta/está, habló/hablo …) zählen immer als falsch, auch im lockeren Modus. Die Liste steht in `js/core/accent.js` (`PAIRS`); neue Paare dort eintragen und testen.
 - Beispielkarten (`x…`) liegen in `data/beispiel-karten.json`, sind klar als „Beispiel“ markiert, haben einen eigenen Fortschrittsbereich, zählen nicht in Lernstand, Tagesplan-Statistik und Gesamtansicht und lassen sich mit einem Knopf samt ihrem Fortschritt entfernen.
 
+## Korrekturen an Karten
+
+- Die App kann jede Karte außer den Beispielkarten bearbeiten (Stift-Symbol). Änderungen an Karten aus `data/cards.json` liegen als Korrektur pro Karten-ID in `fixes` im Gerätespeicher (nur die geänderten Felder, dazu `level`; `""` oder eine leere Liste entfernt das Feld der Datei). Die Datei selbst bleibt unverändert, ID und Lernstand bleiben erhalten. Eigene Karten (`u…`) werden direkt geändert; neue Karten bekommen die nächste freie ID `u01`, `u02` …, gelöschte IDs werden nie wiederverwendet.
+- Jede Speicherung (Bearbeiten, Anlegen, später Import) läuft durch `cardErrors` in `js/core/cards.js`. Fehler werden als Liste gezeigt, bei Fehlern wird nichts gespeichert.
+- Der Bereich einer Karte lässt sich nach dem Anlegen nicht mehr ändern.
+
 ## Texte (Stufe 5)
 
 - `data/texts.json` und importierte Texte: `{ id, area, kind, title, text, region?, gaps }`. Platzhalter `{1}` bis `{n}` im Text, `gaps` mit `[kartenId, lösung]` in derselben Reihenfolge, mehrere Lösungen mit `|`. Jede Karte muss existieren und zum Bereich des Textes gehören.

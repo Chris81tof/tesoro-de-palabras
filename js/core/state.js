@@ -37,7 +37,7 @@ export function cleanProgress(p) {
 }
 
 // Korrektur einer Karte aus data/cards.json: nur die geänderten Felder. null, wenn nichts Gültiges darin steht.
-const FIX_TEXT = ["cat", "term", "de", "prompt", "sentence", "answer", "plain", "note", "reg", "region", "hint", "trigger", "topic"];
+const FIX_TEXT = ["cat", "term", "de", "prompt", "sentence", "answer", "plain", "note", "reg", "region", "hint", "trigger", "mode", "topic"];
 export const FIX_FIELDS = [...FIX_TEXT, "alt", "wrong", "variants", "xref", "unsure", "level"];
 export function cleanFix(f) {
   if (!isObj(f)) return null;
@@ -45,7 +45,7 @@ export function cleanFix(f) {
   for (const k of FIX_TEXT) if (typeof f[k] === "string") out[k] = f[k];
   for (const k of ["alt", "wrong"]) if (Array.isArray(f[k])) out[k] = f[k].filter((a) => typeof a === "string" && a.trim());
   if (Array.isArray(f.variants)) out.variants = f.variants.filter((v) => isObj(v) && v.region && v.term);
-  if (isObj(f.xref)) out.xref = f.xref;
+  if (isObj(f.xref)) out.xref = Object.fromEntries(Object.entries(f.xref).filter(([, v]) => typeof v === "string" && v.trim()));
   if (typeof f.unsure === "boolean") out.unsure = f.unsure;
   if (typeof f.level === "string") out.level = normLevel(f.level); // "" = keine Einschätzung
   return Object.keys(out).length ? out : null;
@@ -115,8 +115,8 @@ export function applyFix(card, fix) {
   const out = { ...card };
   for (const [k, v] of Object.entries(fix)) {
     if (k === "level") continue;
-    const empty = v === "" || v === undefined || (Array.isArray(v) && !v.length);
-    if (["alt", "note", "reg", "region", "hint", "trigger", "plain", "variants", "xref", "prompt"].includes(k) && empty) delete out[k];
+    const empty = v === "" || v === undefined || v === false || (Array.isArray(v) && !v.length) || (isObj(v) && !Object.keys(v).length);
+    if (["alt", "note", "reg", "region", "hint", "trigger", "mode", "plain", "variants", "xref", "prompt", "wrong", "topic", "unsure"].includes(k) && empty) delete out[k];
     else out[k] = v;
   }
   return out;
