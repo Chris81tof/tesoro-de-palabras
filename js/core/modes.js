@@ -1,5 +1,5 @@
 // Übungsarten: Name, Übungsstufe, geschätzte Minuten je Karte und welche Daten eine Karte dafür braucht.
-// Wie weit eine Übung den Lernstand hebt, steht in srs.js (CAP). Stufe 5 kommt in Schritt 5.
+// Wie weit eine Übung den Lernstand hebt, steht in srs.js (CAP). need(karte, alleKarten, ctx) sagt, ob eine Karte dafür taugt.
 import { cue as cueOf } from "./cards.js";
 
 export const cue = cueOf;
@@ -7,7 +7,10 @@ export const ans0 = (c) => (c.answer || "").split("|")[0];
 export const hasGap = (c) => !!(c.sentence && c.answer);
 export const hasWrong = (c) => Array.isArray(c.wrong) && c.wrong.length >= 3;
 
-export const LEVELS = { 1: "Stufe 1 · Verstehen", 2: "Stufe 2 · Erkennen", 3: "Stufe 3 · Abrufen", 4: "Stufe 4 · Prüfen" };
+export const LEVELS = { 1: "Stufe 1 · Verstehen", 2: "Stufe 2 · Erkennen", 3: "Stufe 3 · Abrufen", 4: "Stufe 4 · Prüfen", 5: "Stufe 5 · Anwenden" };
+
+// Stufe 5 gibt es nur für Karten, die in einem Text vorkommen (ctx.stage5 = Menge der Karten-IDs, siehe texts.js)
+const inText = (c, ctx) => !!(ctx && ctx.stage5 && ctx.stage5.has(c.id));
 
 export const MODES = {
   meaning: {
@@ -47,5 +50,22 @@ export const MODES = {
   }
 };
 
+MODES.rewrite = {
+  label: "Umformulieren", lv: 5, est: 2,
+  need: (c, cards, ctx) => hasGap(c) && !!c.plain && inText(c, ctx),
+  desc: "Formuliere den schlichten Satz mit der Wendung anspruchsvoller um. Selbstbewertung, mit Hinweisen. Nur für Karten, die in einem Text vorkommen."
+};
+MODES.produce = {
+  label: "Satz schreiben", lv: 5, est: 3,
+  need: (c, cards, ctx) => !!c.term && inText(c, ctx),
+  desc: "Definition auf Spanisch und drei eigene Beispielsätze. Die App prüft, ob die Wendung vorkommt, und erzeugt einen Prompt für Claude. Nur für Karten, die in einem Text vorkommen."
+};
+// Texte arbeiten nicht mit einer Kartenrunde, sondern mit ganzen Lückentexten (exercises/cloze.js).
+MODES.cloze = {
+  label: "Texte", lv: 5, est: 6, text: true,
+  need: () => false,
+  desc: "Lückentexte mit mehreren Lücken, nach deinem Lernstand vorgeschlagen. Neue Texte holst du mit einem Prompt bei Claude."
+};
+
 // Reihenfolge im Tagesplan: von leicht zu schwer
-export const ORDER = ["meaning", "choice", "gap", "translate", "error", "cards", "explain"];
+export const ORDER = ["meaning", "choice", "gap", "translate", "error", "rewrite", "produce", "cards", "explain"];

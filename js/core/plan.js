@@ -1,12 +1,12 @@
 // Tagesplan pro Bereich: fällige und neue Karten auf Übungsarten verteilen, bis das Zeitbudget erreicht ist.
 import { MODES, ORDER } from "./modes.js";
-import { categoryOf } from "./srs.js";
+import { categoryOf, MASTERED } from "./srs.js";
 import { peekProgress } from "./state.js";
 
-const usable = (m, c, cards) => !!MODES[m] && MODES[m].need(c, cards);
+const usable = (m, c, cards, ctx) => !!MODES[m] && MODES[m].need(c, cards, ctx);
 
 // Passende Übungsart für eine Karte nach ihrem Lernstand
-export function recMode(c, p, cards) {
+export function recMode(c, p, cards, ctx) {
   let m;
   if (!p || !p.seen) m = "meaning";
   else if (categoryOf(p) === "problem") m = p.ms.meaning && p.ms.meaning[0] > 0 ? "choice" : "meaning";
@@ -14,15 +14,22 @@ export function recMode(c, p, cards) {
   else if (p.box === 1) m = "gap";
   else if (p.box === 2) m = p.seen % 2 === 0 ? "translate" : "error";
   else m = p.seen % 2 === 0 ? "error" : "gap";
-  return [m, "gap", "translate", "cards"].find((x) => usable(x, c, cards)) || "cards";
+  return [m, "gap", "translate", "cards"].find((x) => usable(x, c, cards, ctx)) || "cards";
 }
 
-export const planMode = recMode;
+// Gemeisterte Karten werden angewendet (Stufe 5), wenn sie in einem Text vorkommen.
+export function planMode(c, p, cards, ctx) {
+  if (p && p.seen && p.box >= MASTERED) {
+    const m = p.seen % 2 === 0 ? "rewrite" : "produce";
+    if (usable(m, c, cards, ctx)) return m;
+  }
+  return recMode(c, p, cards, ctx);
+}
 
 export const planKey = (prefs, area) => `${area}|${prefs.budget[area]}|${prefs.newPerDay[area]}`;
 
 // cards: die Karten dieses Bereichs. Neue Karten pro Tag und Zeitbudget gelten für diesen Bereich.
-export function buildPlan(cards, state, day, area) {
+export function buildPlan(cards, state, day, area, ctx) {
   const budget = state.prefs.budget[area];
   const prog = (c) => peekProgress(state, c.id);
   const newDone = cards.filter((c) => prog(c) && prog(c).seen && prog(c).first === day).length;
@@ -40,7 +47,7 @@ export function buildPlan(cards, state, day, area) {
   for (const { c, p } of cand) {
     const isNew = !p || !p.seen;
     if (isNew && newLeft <= 0) { skippedNew++; continue; }
-    const m = planMode(c, p, cards);
+    const m = planMode(c, p, cards, ctx);
     const mins = MODES[m].est;
     if (used + mins > budget) continue;
     used += mins;

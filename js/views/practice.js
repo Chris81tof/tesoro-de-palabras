@@ -13,9 +13,12 @@ import * as choice from "../exercises/choice.js";
 import * as gap from "../exercises/gap.js";
 import * as translate from "../exercises/translate.js";
 import * as error from "../exercises/error.js";
+import * as rewrite from "../exercises/rewrite.js";
+import * as produce from "../exercises/produce.js";
+import * as cloze from "./cloze.js";
 import { needArea } from "./today.js";
 
-const EX = { meaning, cards, explain, choice, gap, translate, error };
+const EX = { meaning, cards, explain, choice, gap, translate, error, rewrite, produce };
 const SCOPES = { due: "Heute fällig", open: "Alle nicht gemeisterten", problem: "Nur problematische", all: "Alle Karten" };
 const SIZES = [10, 20, 50, 0];
 
@@ -31,15 +34,24 @@ export function start(app, mode, ids) {
   app.go("practice");
 }
 
+// Einen Lückentext öffnen (vom Tagesplan aus)
+export function startText(app, id) {
+  pick.mode = "cloze";
+  session = null;
+  cloze.openText(app, id);
+  app.go("practice");
+}
+
 export function leave() { /* Vorlesen kommt in Schritt 10 */ }
 
 function eligible(app) {
   const all = app.cards();
+  const ctx = app.ctx();
   const M = MODES[pick.mode];
   const day = today();
   return app.areaCards().filter((c) => {
     if (pick.cat !== "all" && c.cat !== pick.cat) return false;
-    if (!M.need(c, all)) return false;
+    if (!M.need(c, all, ctx)) return false;
     const p = peekProgress(app.state, c.id);
     if (pick.scope === "due") return isDue(p, day);
     if (pick.scope === "problem") return categoryOf(p) === "problem";
@@ -65,6 +77,7 @@ function begin(app, ids, avail) {
 export function render(root, app) {
   if (app.state.prefs.area === "gesamt") { needArea(root, app, "Üben"); return; }
   if (session) renderSession(root, app);
+  else if (pick.mode === "cloze" && cloze.isOpen(app.state.prefs.area)) cloze.renderText(root, app, () => render(root, app));
   else renderPicker(root, app);
 }
 
@@ -73,13 +86,21 @@ const modeBtn = (m, label) =>
 
 function renderPicker(root, app) {
   const cats = [...new Set(app.areaCards().map((c) => c.cat))];
-  const n = eligible(app).length;
+  const isText = !!MODES[pick.mode].text;
+  const n = isText ? 0 : eligible(app).length;
   let h = `<h1>Üben · ${esc(AREAS[app.state.prefs.area])}</h1>`;
-  for (const lv of [1, 2, 3, 4]) {
+  for (const lv of [1, 2, 3, 4, 5]) {
     const ms = Object.entries(MODES).filter(([, M]) => M.lv === lv);
     h += `<h2 class="lvl">${esc(LEVELS[lv])}</h2><div class="modes">` + ms.map(([m, M]) => modeBtn(m, M.label)).join("") + "</div>";
   }
-  h += `<p class="hint">${esc(MODES[pick.mode].desc)}</p>` +
+  h += `<p class="hint">${esc(MODES[pick.mode].desc)}</p>`;
+  if (isText) {
+    root.innerHTML = h + '<div id="clozeArea"></div>';
+    root.querySelectorAll("button.mode").forEach((b) => b.addEventListener("click", () => { pick.mode = b.dataset.mode; render(root, app); }));
+    cloze.renderList(root.querySelector("#clozeArea"), app, () => render(root, app));
+    return;
+  }
+  h +=
     '<div class="controls">' +
     '<label>Kategorie <select id="catSel"><option value="all">Alle</option>' +
     cats.map((c) => `<option value="${esc(c)}"${c === pick.cat ? " selected" : ""}>${esc(c)}</option>`).join("") + "</select></label>" +

@@ -20,6 +20,16 @@ export function setMsg(el, text, kind) {
   el.className = "msg" + (kind ? " " + kind : "");
 }
 
+// In die Zwischenablage kopieren; Safari erlaubt das nur direkt nach einem Tippen.
+export async function copyText(text, msgEl) {
+  try {
+    await navigator.clipboard.writeText(text);
+    setMsg(msgEl, "Kopiert. Jetzt in Claude einfügen.", "ok");
+  } catch {
+    setMsg(msgEl, "Kopieren wurde blockiert. Markiere den Text im Feld und kopiere ihn von Hand.", "err");
+  }
+}
+
 // Zweimal tippen zum Bestätigen (für Entfernen und Zurücksetzen)
 export function armed(btn, label, action) {
   const plain = btn.textContent;

@@ -8,6 +8,7 @@ import * as practiceView from "./views/practice.js";
 import * as settingsView from "./views/settings.js";
 import { later } from "./views/placeholder.js";
 import { applyTheme } from "./core/theme.js";
+import { stage5Ids } from "./core/texts.js";
 
 const TABS = [
   { id: "today", label: "Heute", view: todayView },
@@ -21,9 +22,9 @@ const VIEWS = { ...AREAS, [GESAMT]: "Gesamt" };
 
 async function boot() {
   const view = $("view");
-  let base, examples;
+  let base, examples, baseTexts;
   try {
-    [base, examples] = await Promise.all(["data/cards.json", "data/beispiel-karten.json"].map((f) => fetch(f).then((r) => r.json())));
+    [base, examples, baseTexts] = await Promise.all(["data/cards.json", "data/beispiel-karten.json", "data/texts.json"].map((f) => fetch(f).then((r) => r.json())));
   } catch {
     view.innerHTML = '<p class="msg err">Die Karten konnten nicht geladen werden.</p>';
     return;
@@ -32,10 +33,12 @@ async function boot() {
   const state = load(localStorage);
   applyTheme(state.prefs.theme);
   const app = {
-    base, examples,
+    base, examples, baseTexts,
     state,
     plan: null,
     cards: () => allCards(app.base, app.examples, app.state),
+    texts: () => [...app.baseTexts, ...app.state.texts].filter((t) => !(t.example && app.state.examples.removed)),
+    ctx: () => ({ stage5: stage5Ids(app.texts()) }),
     areaCards: () => inArea(app.cards(), app.state.prefs.area),
     save: () => save(localStorage, app.state),
     invalidatePlan: () => { app.plan = null; },

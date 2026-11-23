@@ -73,6 +73,14 @@ Optional: `prompt` (spanische Erklärung), `wrong` (genau 3), `plain`, `reg`, `r
 - **Akzent-Paare mit Bedeutungsunterschied** (si/sí, el/él, esta/está, habló/hablo …) zählen immer als falsch, auch im lockeren Modus. Die Liste steht in `js/core/accent.js` (`PAIRS`); neue Paare dort eintragen und testen.
 - Beispielkarten (`x…`) liegen in `data/beispiel-karten.json`, sind klar als „Beispiel“ markiert, haben einen eigenen Fortschrittsbereich, zählen nicht in Lernstand, Tagesplan-Statistik und Gesamtansicht und lassen sich mit einem Knopf samt ihrem Fortschritt entfernen.
 
+## Texte (Stufe 5)
+
+- `data/texts.json` und importierte Texte: `{ id, area, kind, title, text, region?, gaps }`. Platzhalter `{1}` bis `{n}` im Text, `gaps` mit `[kartenId, lösung]` in derselben Reihenfolge, mehrere Lösungen mit `|`. Jede Karte muss existieren und zum Bereich des Textes gehören.
+- Bei Subjuntivo steht der Infinitiv in Klammern hinter der Lücke: `{3} (venir)`.
+- Eine ausdrückliche Markierung `[[kartenId:Textstelle]]` sagt dem Abgleich, wo die Wendung steht; die Lücke `{n}` bleibt darin. Der Prompt für neue Texte erklärt das.
+- Beim Import: Fehler pro Text, gültige Texte des Pakets bleiben importierbar; „Wendung nicht erkannt“ ist nur eine Warnung. Schultexte mit möglichen Eigennamen werden abgelehnt.
+- Stufe 5 (Texte, Umformulieren, Satz schreiben) nutzt nur Karten, die in einem Text vorkommen. Eine Vollabdeckung wird nicht verlangt.
+
 ## Tests
 
 - `node --test` startet alle Tests in `tests/`, ohne Pakete.

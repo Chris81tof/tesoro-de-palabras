@@ -80,6 +80,21 @@ export function gapHintOptions(card, cards, prefs, rand = Math.random) {
   return opts.length >= 2 ? opts : null;
 }
 
+// Optionen für eine Lücke in einem Text. answer: Lösung der Lücke (ggf. mit |), others: Lösungen der anderen Lücken desselben Textes.
+// card kann fehlen (entfernte Karte). Bei Subjuntivo nur die falschen Formen der Karte.
+export function textGapHintOptions(card, cards, answer, others, prefs, rand = Math.random) {
+  const own = String(answer).split("|").map((a) => a.trim());
+  const sol = own[0];
+  const hasWrong = card && Array.isArray(card.wrong) && card.wrong.length >= 3 && own.some((a) => answersOf(card).some((b) => clean(b) === clean(a)));
+  if (card && isSubjuntivo(card)) return hasWrong ? shuffled([sol, ...card.wrong.slice(0, 3)], rand) : null;
+  const c = card || { id: "", cat: "" };
+  const first = (o) => viewOf(o, prefs).shown.answers[0];
+  const same = cards.filter((o) => o.id !== c.id && o.cat === c.cat && o.answer).map(first);
+  const rest = cards.filter((o) => o.id !== c.id && o.cat !== c.cat && o.answer).map(first);
+  const opts = buildOptions(sol, [hasWrong ? card.wrong : [], others, same, rest], [...own, ...(card ? validAnswers(card) : [])], rand);
+  return opts.length >= 2 ? opts : null;
+}
+
 // Optionen für eine Wendung (Übersetzen): Wendungen anderer Karten in der Fassung der eigenen Variante
 export function termHintOptions(card, cards, prefs, rand = Math.random) {
   return meaningOptions(card, cards, { ...prefs, meaningDir: "de-es" }, rand).options.map((o) => o.t);

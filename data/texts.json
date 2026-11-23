@@ -1,0 +1,12 @@
+[
+  {
+    "id": "xt1", "example": true, "area": "allgemein", "kind": "Blog · Alltag (Beispiel)", "title": "Una semana difícil",
+    "text": "Esta semana tengo que {1} una decisión importante: cambiar de trabajo o quedarme donde estoy. Para buscar ofertas necesito mi {2}, pero se ha roto. Tal vez mi hermana {3} (venir) el sábado y me ayude a repararlo.",
+    "gaps": [["x01", "tomar|adoptar"], ["x05", "ordenador|computadora|computador"], ["x03", "venga|viene|vendrá"]]
+  },
+  {
+    "id": "xt2", "example": true, "area": "schule", "kind": "Elternbrief · Elterngespräch (Beispiel)", "title": "Una nota para las familias",
+    "text": "Estimada familia: Les propongo {1} una cita para hablar del rendimiento de su hijo. Ayer no pudieron {2} a la reunión de padres, y por eso les pido que {3} (justificar) por escrito las ausencias de esta semana. Si el comportamiento no mejora, la dirección del colegio podría {4} una sanción. Hoy se entregan los {5} de notas del trimestre.",
+    "gaps": [["x06", "concertar|fijar|acordar|programar|agendar"], ["x07", "asistir"], ["x08", "justifique"], ["x09", "imponer|aplicar|poner"], ["x10", "boletines|boletas"]]
+  }
+]

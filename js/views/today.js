@@ -7,7 +7,8 @@ import { peekProgress, statCards } from "../core/state.js";
 import { AREAS } from "../core/cards.js";
 import { today } from "../core/dates.js";
 import { icon } from "../core/icons.js";
-import { start } from "./practice.js";
+import { start, startText } from "./practice.js";
+import { suggestTexts, textsOf } from "../core/texts.js";
 
 const BUDGETS = [10, 20, 30, 40, 60, 90];
 const NEW_PER_DAY = [3, 5, 10, 15, 20, 30];
@@ -32,7 +33,7 @@ export function render(root, app) {
   if (area === "gesamt") { needArea(root, app, "Heute"); return; }
   const day = today();
   const cards = app.areaCards();
-  if (!app.plan || app.plan.day !== day || app.plan.key !== planKey(state.prefs, area)) app.plan = buildPlan(cards, state, day, area);
+  if (!app.plan || app.plan.day !== day || app.plan.key !== planKey(state.prefs, area)) app.plan = buildPlan(cards, state, day, area, app.ctx());
   const plan = app.plan;
   const prog = (id) => peekProgress(state, id);
   const doneToday = cards.filter((c) => prog(c.id) && prog(c.id).last === day).length;
@@ -59,6 +60,19 @@ export function render(root, app) {
     h += '<p class="hint">Die Reihenfolge geht von leicht zu schwer. Welche Übungsart eine Karte bekommt, hängt von ihrer Stufe ab.</p>';
   }
 
+  // Stufe 5: die drei Texte, die am besten zum Lernstand passen
+  const texts = textsOf(app.texts(), area, state);
+  h += '<h2>Texte</h2>';
+  if (!texts.length) h += '<p class="prompt">Noch kein Text in diesem Bereich. Unter „Üben“ → „Texte“ holst du dir einen von Claude. Erst durch einen Text kommen Karten in Stufe 5.</p>';
+  else {
+    h += '<p class="prompt">Ein Lückentext übt mehrere Wendungen im Zusammenhang (ca. 6 Minuten).</p>';
+    const known = new Set(app.cards().map((c) => c.id));
+    for (const { t } of suggestTexts(texts, state, day, known, state.prefs, 3)) {
+      h += `<div class="block">${icon("cloze")}<div class="meta"><strong>${esc(t.title)}</strong><span>${esc(t.kind)} · ${t.gaps.length} Lücken</span></div>` +
+        `<button type="button" class="small" data-text="${esc(t.id)}">Öffnen</button></div>`;
+    }
+  }
+
   // Lernstand ohne Beispielkarten
   const by = { new: 0, developing: 0, problem: 0, mastered: 0 };
   for (const c of statCards(cards)) by[categoryOf(prog(c.id))]++;
@@ -72,6 +86,7 @@ export function render(root, app) {
     const open = b.ids.filter((id) => !prog(id) || prog(id).last !== day);
     start(app, b.mode, open.length ? open : b.ids);
   }));
+  root.querySelectorAll("button[data-text]").forEach((btn) => btn.addEventListener("click", () => startText(app, btn.dataset.text)));
   root.querySelector("#bdSel").addEventListener("change", (e) => { state.prefs.budget[area] = Number(e.target.value); app.save(); render(root, app); });
   root.querySelector("#npSel").addEventListener("change", (e) => { state.prefs.newPerDay[area] = Number(e.target.value); app.save(); render(root, app); });
   root.querySelector("#rePlan").addEventListener("click", () => { app.invalidatePlan(); render(root, app); });
