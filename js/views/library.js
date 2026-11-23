@@ -1,18 +1,20 @@
 // Reiter „Sammlung“: Werkzeuge oben (zugeklappt, immer nur eines offen), angepinnte Suche mit Filtern,
 // schlanke Kartenliste, die in Abschnitten nachlädt. Bearbeiten, Import und Sicherung folgen in Schritt 7 bis 9.
-import { esc, armed } from "../core/dom.js";
+import { esc, armed, copyText } from "../core/dom.js";
 import { cue } from "../core/modes.js";
 import { categoryOf, STATUS, MAX_BOX } from "../core/srs.js";
 import { peekProgress, isExample, GESAMT } from "../core/state.js";
 import { today } from "../core/dates.js";
 import { icon } from "../core/icons.js";
-import { REG, REGION, AREAS, modeLabel } from "../core/cards.js";
+import { REG, REGION, AREAS, CATS, TOPICS, modeLabel } from "../core/cards.js";
+import { cardPrompt, parseCards, summarizeImport, fixPrompt } from "../core/import.js";
 import { viewOf, regionLabel } from "../core/variants.js";
 import { openEditor } from "./editor.js";
 import { isEditable } from "../core/edit.js";
 import { PAGE, STAT_OPTS, filterCards, categoriesOf, statusLabel, nextShown, restCount, toggleOne, toggleIn, regionOptions, levelOptions, levelOf, isEdited } from "../core/library.js";
 
 // tool: das offene Werkzeug, expanded: die aufgeklappte Karte, shown: wie viele Karten gezeichnet werden
+const imp = { area: "", cat: "", topic: "", count: 10, terms: "", paste: "", errors: [], lines: [], kind: "" };
 const ui = { editing: undefined, scrollY: 0, q: "", cat: "all", stat: "all", region: "all", level: "all", shown: PAGE, tool: "", expanded: "", selecting: false, picked: new Set(), areaFilter: "all" };
 let flash = {};
 let io = null;
@@ -95,6 +97,26 @@ const msg = (id) => {
   return `<p class="msg${f ? " " + f[1] : ""}" id="${id}" role="status">${f ? esc(f[0]) : ""}</p>`;
 };
 
+// Werkzeug „Neue Karten von Claude“: Prompt kopieren, Antwort einfügen, importieren
+function importBody(app, gesamt) {
+  const cur = app.state.prefs.area;
+  const ar = imp.area in AREAS ? imp.area : (gesamt ? "allgemein" : cur);
+  const opt = (v, t, sel) => `<option value="${esc(v)}"${v === sel ? " selected" : ""}>${esc(t)}</option>`;
+  return '<p class="hint">Claude schreibt die Karten, du fügst die Antwort hier ein. Jede Karte wird geprüft wie im Formular. Fehlerhafte Karten werden einzeln gemeldet, die gültigen übernimmt die App trotzdem.</p>' +
+    '<div class="controls">' +
+    `<label>Bereich <select id="imArea">${Object.entries(AREAS).map(([k, v]) => opt(k, v, ar)).join("")}</select></label>` +
+    `<label>Kategorie (für Vorschläge) <select id="imCat">${opt("", "Beliebig", imp.cat)}${CATS.map((c) => opt(c, c, imp.cat)).join("")}</select></label>` +
+    (ar === "schule" ? `<label>Thema <select id="imTopic">${opt("", "Beliebig", imp.topic)}${TOPICS.map((t) => opt(t, t, imp.topic)).join("")}</select></label>` : "") +
+    `<label>Anzahl <select id="imCount">${[5, 10, 15, 20].map((n) => opt(String(n), String(n), String(imp.count))).join("")}</select></label>` +
+    "</div>" +
+    `<label class="field" for="imTerms">Eigene Wendungen (eine pro Zeile, optional; sonst macht Claude Vorschläge)</label><textarea id="imTerms" class="mid" lang="es" spellcheck="false">${esc(imp.terms)}</textarea>` +
+    '<div class="btnrow"><button type="button" id="imCopy">Prompt kopieren</button></div><p class="msg" id="imCopyMsg" role="status"></p>' +
+    `<label class="field" for="imPaste">Antwort von Claude hier einfügen</label><textarea id="imPaste" class="tall" spellcheck="false" placeholder="[{&quot;cat&quot;: …, &quot;term&quot;: …}]">${esc(imp.paste)}</textarea>` +
+    '<div class="btnrow"><button type="button" class="primary" id="imGo">Importieren</button></div>' +
+    `<div class="msg${imp.kind ? " " + imp.kind : ""}" id="imMsg" role="status">${imp.lines.length ? "<ul>" + imp.lines.map((l) => `<li>${esc(l)}</li>`).join("") + "</ul>" : ""}</div>` +
+    (imp.errors.length ? '<div class="btnrow"><button type="button" id="imFix">Fehlerliste für Claude kopieren</button></div><p class="msg" id="imFixMsg" role="status"></p>' : "");
+}
+
 export function render(root, app) {
   leave();
   const rerender = () => render(root, app);
@@ -121,7 +143,7 @@ export function render(root, app) {
   let h = `<div class="sessionbar"><h1 class="withicon">${icon("library")}Sammlung · ${esc(gesamt ? "Gesamt" : AREAS[area])}</h1><a class="small btnlink iconbtn" href="#settings" aria-label="Einstellungen">${icon("settings")}</a></div>`;
   h += '<div class="tools">' +
     tool("add", "Eigene Karte anlegen", '<p class="hint">Eine eigene Wendung mit Satz, Lösung und Hilfen anlegen, in „Allgemein“ oder „Schulgespräche“. Das Formular prüft alles wie der Import.</p><button type="button" class="primary" id="addBtn">Neue Karte anlegen</button>' + msg("addMsg")) +
-    tool("claude", "Neue Karten von Claude", '<p class="hint">Prompt zum Kopieren und Import per JSON kommen mit Schritt 8.</p>') +
+    tool("claude", "Neue Karten von Claude", importBody(app, gesamt)) +
     tool("backup", "Sichern und Wiederherstellen", '<p class="hint">Sicherung und Wiederherstellung kommen mit Schritt 9.</p>') +
     tool("reset", "Zurücksetzen", '<p class="hint">Setzt den Lernstand aller Karten (auch der Beispielkarten) zurück. Karten, eigene Karten und Einstellungen bleiben.</p>' +
       '<button type="button" id="rsBtn">Lernstand zurücksetzen</button>' + msg("rsMsg") +
@@ -163,6 +185,42 @@ export function render(root, app) {
       t.querySelector(".toolbody").hidden = !open;
     });
   }));
+  // Import
+  const impArea = () => (root.querySelector("#imArea")?.value in AREAS ? root.querySelector("#imArea").value : "allgemein");
+  const keepImp = () => {
+    imp.area = impArea();
+    imp.cat = root.querySelector("#imCat").value;
+    imp.topic = root.querySelector("#imTopic")?.value || "";
+    imp.count = Number(root.querySelector("#imCount").value);
+    imp.terms = root.querySelector("#imTerms").value;
+    imp.paste = root.querySelector("#imPaste").value;
+  };
+  root.querySelector("#imArea").addEventListener("change", () => { keepImp(); ui.tool = "claude"; rerender(); });
+  ["imCat", "imTopic", "imCount"].forEach((id) => root.querySelector("#" + id)?.addEventListener("change", keepImp));
+  ["imTerms", "imPaste"].forEach((id) => root.querySelector("#" + id).addEventListener("input", keepImp));
+  root.querySelector("#imCopy").addEventListener("click", () => {
+    keepImp();
+    copyText(cardPrompt({ area: imp.area, terms: imp.terms.split("\n"), cat: imp.cat, topic: imp.topic, count: imp.count }, app.cards().filter((c) => !c.example), state.prefs), root.querySelector("#imCopyMsg"));
+  });
+  root.querySelector("#imGo").addEventListener("click", () => {
+    keepImp();
+    if (!imp.paste.trim()) { imp.lines = ["Erst die Antwort von Claude einfügen."]; imp.kind = "err"; imp.errors = []; ui.tool = "claude"; rerender(); return; }
+    const taken = [...app.base, ...state.custom].map((c) => c.id).concat(state.deleted);
+    const r = parseCards(imp.paste, app.cards().filter((c) => !c.example), taken, imp.area);
+    if (r.cards.length) {
+      state.custom.push(...r.cards);
+      app.save();
+      app.invalidatePlan();
+    }
+    imp.lines = summarizeImport(r);
+    imp.errors = r.errors;
+    imp.kind = r.fatal || r.errors.length ? "err" : "ok";
+    // Übernommene und bereits vorhandene Karten sind erledigt; fehlerhafte bleiben im Feld zum Korrigieren
+    if (!r.fatal && !r.errors.length) imp.paste = "";
+    ui.tool = "claude";
+    rerender();
+  });
+  root.querySelector("#imFix")?.addEventListener("click", () => copyText(fixPrompt(imp.errors, imp.area || "allgemein", state.prefs), root.querySelector("#imFixMsg")));
   root.querySelector("#addBtn").addEventListener("click", () => { ui.scrollY = window.scrollY; ui.editing = null; rerender(); });
   const rs = root.querySelector("#rsBtn");
   armed(rs, "Sicher? Der Lernstand geht verloren", () => {

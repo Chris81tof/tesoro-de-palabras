@@ -69,7 +69,7 @@ Optional: `prompt` (spanische Erklärung), `wrong` (genau 3), `plain`, `reg`, `r
 - Fehler: zurück auf Stufe 0, heute wieder fällig; bei Bedeutung und Auswahl nur eine Stufe zurück.
 - Nur aktive Übungen verändern den Lernstand, der Passiv-Durchlauf nicht.
 - Gestufte Hinweise: Stufe 1 Kategorie, Gerüst und (bei Subjuntivo) Auslöser; Stufe 2 Anfangsbuchstaben; Stufe 3 Auswahl aus 4; dann „Lösung zeigen“ (gilt als falsch). Richtig mit Hinweis (auch fehlender Akzent): Stufe bleibt, morgen wieder fällig, Zähler `hinted`.
-- **Import:** Fehler werden pro Karte angezeigt; gültige Karten eines Pakets bleiben importierbar, auch wenn andere Karten Fehler haben.
+- **Import** (`js/core/import.js`): Fehler werden pro Karte angezeigt; gültige Karten eines Pakets bleiben importierbar, auch wenn andere Karten Fehler haben. Dubletten (gleiche Wendung im selben Bereich) werden übersprungen, nicht als Fehler gemeldet. Neue Felder im Kartenformat gehören auch in den Prompt `cardPrompt` (ein Test prüft, dass alle Felder, Kategorien, Register, Modi und Regionen darin stehen).
 - **Akzent-Paare mit Bedeutungsunterschied** (si/sí, el/él, esta/está, habló/hablo …) zählen immer als falsch, auch im lockeren Modus. Die Liste steht in `js/core/accent.js` (`PAIRS`); neue Paare dort eintragen und testen.
 - Beispielkarten (`x…`) liegen in `data/beispiel-karten.json`, sind klar als „Beispiel“ markiert, haben einen eigenen Fortschrittsbereich, zählen nicht in Lernstand, Tagesplan-Statistik und Gesamtansicht und lassen sich mit einem Knopf samt ihrem Fortschritt entfernen.
 
