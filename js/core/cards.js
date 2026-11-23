@@ -1,4 +1,5 @@
 // Kartenformat und Prüfung. Regeln siehe CLAUDE.md, Abschnitt „Kartenformat“.
+import { stripAccents } from "./accent.js";
 
 export const AREAS = { allgemein: "Allgemein", schule: "Schulgespräche" };
 export const CATS = ["Kollokation", "Verb + Präposition", "Subjuntivo-Auslöser", "Feste Wendung", "Wortbildung", "Idiom", "Konnektor", "Falscher Freund", "Sonstiges"];
@@ -49,6 +50,14 @@ export function hasPhrase(text, phrase) {
 
 // Was die Bedeutungsübung und das Erklären als Frage zeigen: deutsche Bedeutung, sonst spanische Erklärung
 export const cue = (c) => c.de || c.prompt || "";
+
+// Verrät ein eigener Hinweis die Lösung? Lösungswörter ab 3 Buchstaben (auch Varianten) oder die ganze Wendung, als ganze Wörter.
+export function hintLeaksSolution(c) {
+  if (!c.hint) return false;
+  const sols = [...answersOf(c), ...(c.variants || []).flatMap((v) => String(v.answer || "").split("|")), c.term, ...(c.variants || []).map((v) => v.term)]
+    .map((x) => String(x || "").trim()).filter((x) => [...x].filter((ch) => /\p{L}/u.test(ch)).length >= 3);
+  return sols.some((x) => hasPhrase(stripAccents(c.hint), stripAccents(x)));
+}
 
 // Prüft eine Karte und gibt Fehlermeldungen (deutsch) zurück. Verändert nichts.
 export function cardErrors(c) {
@@ -102,6 +111,7 @@ export function cardErrors(c) {
     if (!c.xref || typeof c.xref !== "object" || Array.isArray(c.xref) || !Object.keys(c.xref).length) add("„xref“ braucht Einträge je Sprache.");
     else if (Object.entries(c.xref).some(([k, v]) => !XREF_LANGS.includes(k) || !str(v))) add("„xref“ erlaubt nur IT, FR, PT, DE, EN mit Text.");
   }
+  if (c.hint && hintLeaksSolution(c)) add("Der eigene Hinweis verrät die Lösung.");
   if (c.plain) {
     // Die schlichte Fassung (Umformulieren) darf Wendung und Auslöser nicht als Ganzes enthalten und kein Lösungswort ab 4 Buchstaben.
     // Kurze Lösungen (de, en, a …) bleiben außen vor, sonst fiele fast jede Verb + Präposition-Karte durch.

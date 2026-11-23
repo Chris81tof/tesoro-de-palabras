@@ -106,7 +106,7 @@ function renderSession(root, app) {
   const box = root.querySelector("#study");
   const byId = new Map(app.cards().map((c) => [c.id, c]));
 
-  const reset = () => { s.result = null; s.ui = null; s.flipped = false; s.typed = ""; };
+  const reset = () => { s.result = null; s.ui = null; s.flipped = false; s.typed = ""; s.hint = null; };
   s.rerender = () => renderSession(root, app);
   // Ergebnis verbuchen; falsch beantwortete Karten kommen zwei Plätze später noch einmal.
   // hinted: richtig, aber mit Hinweis (z. B. fehlender Akzent): bleibt auf der Stufe, morgen wieder fällig.

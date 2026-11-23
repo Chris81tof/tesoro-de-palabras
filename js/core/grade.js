@@ -48,3 +48,19 @@ export function gradeTerm(card, given, prefs) {
   if (bad) out.warning = `„${bad.term}“ gilt in ${regionLabel(bad.region)} als vulgär.`;
   return out;
 }
+
+// Ergebnis nach Hinweisen: richtig mit Hinweis bleibt auf der Stufe und ist morgen wieder fällig (srs.record, hinted).
+export function withHint(result, hintLevel) {
+  const used = hintLevel > 0;
+  return { ...result, hintUsed: used, hinted: result.ok && (result.hinted || used) };
+}
+
+// „Lösung zeigen“ zählt als falsch
+export function revealResult(expected) {
+  return { ok: false, hinted: false, hintUsed: true, revealed: true, kind: "wrong", given: "", expected: Array.isArray(expected) ? expected : [expected], accentAnswer: null, variantMsg: null, warning: null };
+}
+
+// Auswahl einer Hinweisoption, die richtig ist
+export function pickedResult(text) {
+  return { ok: true, hinted: true, hintUsed: true, kind: "exact", given: text, expected: [text], accentAnswer: null, variantMsg: null, warning: null };
+}

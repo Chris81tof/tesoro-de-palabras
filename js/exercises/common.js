@@ -5,6 +5,7 @@ import { icon } from "../core/icons.js";
 import { REG, REGION } from "../core/cards.js";
 import { viewOf, regionLabel } from "../core/variants.js";
 import { revealMode, isSubjuntivo } from "../core/subjuntivo.js";
+import { hintLine, MAX_HINT } from "../core/hints.js";
 
 export function sentenceHtml(s, fill) {
   const out = esc(s);
@@ -118,16 +119,65 @@ export function bindAnswer(box, s, check) {
 
 const cap = (t) => t.charAt(0).toUpperCase() + t.slice(1);
 
-// Rückmeldung zu einer getippten Antwort (Ergebnis von gradeGap / gradeTerm)
+// Rückmeldung zu einer getippten Antwort (Ergebnis von gradeGap / gradeTerm, ggf. durch withHint ergänzt)
 export function typedFeedback(r) {
   let head;
-  if (r.ok && r.hinted) head = `✓ Richtig, aber der Akzent fehlt: ${r.accentAnswer}. Die Karte bleibt auf ihrer Stufe und kommt morgen wieder.`;
+  if (r.ok && r.hinted && r.kind === "accent") head = `✓ Richtig, aber der Akzent fehlt: ${r.accentAnswer}. Die Karte bleibt auf ihrer Stufe und kommt morgen wieder.`;
+  else if (r.ok && r.hinted) head = "✓ Richtig. Mit Hinweis gelöst: Die Karte bleibt auf ihrer Stufe und kommt morgen wieder." + (r.variantMsg ? " " + cap(r.variantMsg) + "." : "");
   else if (r.ok) head = "✓ " + (r.variantMsg ? cap(r.variantMsg) + "." : "Richtig.");
+  else if (r.revealed) head = `✗ Lösung gezeigt, das zählt als nicht gewusst. Gesucht: ${r.expected.join(" / ")}`;
   else if (r.kind === "meaning") head = `✗ Der Akzent ändert hier die Bedeutung: richtig ist ${r.accentAnswer} (deine Antwort: ${r.given}).`;
   else if (r.kind === "accent") head = `✗ Der Akzent fehlt oder ist falsch: ${r.accentAnswer} (strenger Modus).`;
   else head = `✗ Nicht ganz. Gesucht: ${r.expected.join(" / ")} (deine Antwort: ${r.given})`;
-  if (r.ok && r.hinted && r.variantMsg) head += " " + cap(r.variantMsg) + ".";
   let h = `<div class="feedback ${r.ok ? "good" : "bad"}" role="status">${esc(head)}</div>`;
   if (r.warning) h += `<p class="warnbox">${icon("warn")}<span>${esc(r.warning)}</span></p>`;
   return h;
+}
+
+// Gestufte Hinweise (Stufe 1 bis 3, danach „Lösung zeigen“). Der Zustand h gehört zur Karte:
+// { id, level, wrong: [Indizes falscher Optionen], opts: [Optionen] | null, right }.
+export const newHint = () => ({ level: 0, wrong: [], opts: null, right: false });
+
+export function hintState(s, c) {
+  if (!s.hint || s.hint.id !== c.id) s.hint = { id: c.id, ...newHint() };
+  return s.hint;
+}
+
+// spec: { c, target, options() } – options liefert bis zu 4 Optionen oder null (dann gibt es nur Stufe 1 und 2)
+export const maxLevel = (spec) => (spec.hasOptions ? MAX_HINT : MAX_HINT - 1);
+
+export function hintHtml(h, spec) {
+  const max = maxLevel(spec);
+  let out = '<div class="hintbox">';
+  if (h.level >= 1) {
+    out += `<p class="scaffold" aria-label="Hinweis">${esc(hintLine(spec.c, spec.target, h.level))}</p>` +
+      (spec.c.hint ? `<p class="note">Eigener Hinweis: ${esc(spec.c.hint)}</p>` : "");
+  }
+  if (h.level >= MAX_HINT && h.opts) {
+    out += '<div class="opts" role="group" aria-label="Welche Option passt?">' + h.opts.map((o, i) => {
+      const bad = h.wrong.includes(i);
+      return `<button type="button" class="opt${bad ? " bad" : ""}" data-hopt="${i}"${bad || h.right ? " disabled" : ""}><span class="k">${i + 1}</span><span>${esc(o)}${bad ? " ✗" : ""}</span></button>`;
+    }).join("") + "</div>";
+  }
+  out += '<div class="btnrow">' + (h.level < max
+    ? `<button type="button" class="small" id="hintBtn">${h.level ? `Nächster Hinweis (${h.level + 1} von ${max})` : "Hinweis"}</button>`
+    : '<button type="button" class="small" id="revealBtn">Lösung zeigen</button>') + "</div></div>";
+  return out;
+}
+
+// hooks: save() sichert Eingaben vor dem Neuzeichnen, redraw() zeichnet neu,
+// onRight(text) wird bei der richtigen Option gerufen, onReveal() bei „Lösung zeigen“.
+export function bindHint(box, h, spec, hooks) {
+  box.querySelector("#hintBtn")?.addEventListener("click", () => {
+    hooks.save?.();
+    h.level++;
+    if (h.level >= MAX_HINT && !h.opts) h.opts = spec.options();
+    hooks.redraw();
+  });
+  box.querySelector("#revealBtn")?.addEventListener("click", () => { hooks.save?.(); hooks.onReveal(); });
+  box.querySelectorAll("button[data-hopt]").forEach((b) => b.addEventListener("click", () => {
+    const i = Number(b.dataset.hopt);
+    hooks.save?.();
+    if (h.opts[i] === spec.target.text) { h.right = true; hooks.onRight(h.opts[i]); } else { h.wrong.push(i); hooks.redraw(); }
+  }));
 }
