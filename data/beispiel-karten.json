@@ -14,7 +14,7 @@
     "prompt": "expresión que presenta un hecho como posible, pero no seguro",
     "sentence": "Es posible que mañana ____ (llover) en el norte.", "answer": "llueva",
     "wrong": ["llueve", "lloverá", "llovió"], "plain": "Mañana probablemente lloverá en el norte.", "reg": "n",
-    "trigger": "es posible que",
+    "trigger": "es posible que", "mode": "subj",
     "note": "BEISPIEL. Nach „es posible que“ steht immer der Subjuntivo."
   },
   {
@@ -23,7 +23,7 @@
     "prompt": "adverbio que expresa duda sobre algo que puede ocurrir",
     "sentence": "Tal vez ella ____ (venir) a la fiesta.", "answer": "venga|viene|vendrá",
     "wrong": ["vienen", "vengamos", "venir"], "plain": "Ella no ha confirmado si asistirá a la fiesta.", "reg": "n",
-    "trigger": "tal vez",
+    "trigger": "tal vez", "mode": "both",
     "note": "BEISPIEL. Nach „tal vez“ sind beide Modi möglich, der Subjuntivo ist üblicher."
   },
   {
@@ -83,7 +83,7 @@
     "prompt": "rogar a alguien que haga algo",
     "sentence": "Le pido que ____ (justificar) las ausencias de su hija por escrito.", "answer": "justifique",
     "wrong": ["justifica", "justificar", "justificó"], "plain": "Necesito un justificante escrito de las ausencias de su hija.", "reg": "f",
-    "trigger": "pedir que",
+    "trigger": "pedir que", "mode": "subj",
     "note": "BEISPIEL. Bitten und Auffordern löst den Subjuntivo aus."
   },
   {

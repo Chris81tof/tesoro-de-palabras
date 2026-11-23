@@ -1,5 +1,7 @@
 // Subjuntivo-Karten: Die Lücke fällt auf das konjugierte Verb, der Infinitiv steht in Klammern dahinter.
-import { answersOf } from "./cards.js";
+import { answersOf, modeLabel, MODE_WORDS } from "./cards.js";
+
+export { modeLabel, MODE_WORDS };
 
 export const isSubjuntivo = (c) => !!(c && c.trigger);
 
@@ -9,15 +11,16 @@ export function gapInfinitive(sentence) {
   return m ? m[1].trim() : "";
 }
 
-// Mehrere richtige Formen = beide Modi möglich
-export const bothModes = (c) => answersOf(c).length > 1;
+// Beide Modi möglich (mode „both“): dann sind beide Formen richtig
+export const bothModes = (c) => c.mode === "both";
+
+// Beim Aufdecken der Lösung: „Subjuntivo“, „Indikativ“ oder „Subjuntivo oder Indikativ“
+export const revealMode = (c) => (isSubjuntivo(c) ? modeLabel(c) : "");
 
 // Hinweisstufe 1 nennt nur den Auslöser, nie den Modus (der erscheint erst bei der Lösung).
 export function triggerHint(c) {
   return isSubjuntivo(c) ? `Auslöser: „${c.trigger}“` : "";
 }
-
-export const MODE_WORDS = /subjuntivo|subjunctive|konjunktiv|indicativo|indikativ|modus|modo/i;
 
 function shuffled(a, rand) {
   const out = [...a];

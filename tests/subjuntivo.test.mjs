@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { isSubjuntivo, gapInfinitive, bothModes, triggerHint, gapOptions, MODE_WORDS } from "../js/core/subjuntivo.js";
+import { isSubjuntivo, gapInfinitive, bothModes, triggerHint, gapOptions, MODE_WORDS, revealMode } from "../js/core/subjuntivo.js";
 import { judge } from "../js/core/accent.js";
 import { answersOf } from "../js/core/cards.js";
 
@@ -26,6 +26,14 @@ test("Auslöser mit beiden Modi: beide Formen sind richtig", () => {
   assert.ok(bothModes(tal));
   for (const f of ["venga", "viene", "vendrá"]) assert.ok(judge(answersOf(tal), f).ok, f);
   assert.ok(!bothModes(ex.find((c) => c.id === "x02")));
+});
+test("Modus der Beispielkarten und Anzeige beim Aufdecken", () => {
+  const by = (id) => ex.find((c) => c.id === id);
+  assert.deepEqual(["x02", "x03", "x08"].map((id) => by(id).mode), ["subj", "both", "subj"]);
+  assert.equal(revealMode(by("x02")), "Subjuntivo");
+  assert.equal(revealMode(by("x03")), "Subjuntivo oder Indikativ");
+  assert.equal(revealMode(by("x01")), "", "nur bei Subjuntivo-Karten");
+  assert.ok(subj.every((c) => MODE_WORDS.test(revealMode(c))), "beim Aufdecken wird der Modus genannt");
 });
 test("Ablenker: nur die falschen Formen der Karte, nie eine richtige", () => {
   for (const c of subj) {

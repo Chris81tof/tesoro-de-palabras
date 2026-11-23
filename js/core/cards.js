@@ -13,6 +13,11 @@ export const REGION = {
   ve: "Venezuela", uy: "Uruguay", ec: "Ecuador", bo: "Bolivien", py: "Paraguay", cu: "Kuba", do: "Dominikanische Republik",
   gt: "Guatemala", hn: "Honduras", sv: "El Salvador", ni: "Nicaragua", pa: "Panama", pr: "Puerto Rico"
 };
+// Modus bei Subjuntivo-Auslösern: subj = Subjuntivo, ind = Indikativ, both = beide möglich (dann stehen beide Formen in „answer“)
+export const MODES = { subj: "Subjuntivo", ind: "Indikativ", both: "Subjuntivo oder Indikativ" };
+export const modeLabel = (c) => MODES[c && c.mode] || "";
+// Wörter, die den Modus verraten; sie dürfen in Hinweisen vor der Lösung nicht vorkommen
+export const MODE_WORDS = /subjuntivo|subjunctive|konjunktiv|indicativo|indikativ|modus|modo/i;
 export const XREF_LANGS = ["IT", "FR", "PT", "DE", "EN"];
 export const LEVELS = ["A1", "A2", "B1", "B2", "C1", "C2"];
 
@@ -88,14 +93,20 @@ export function cardErrors(c) {
   }
   if (c.area === "schule" && c.topic === undefined) add("Schulgespräche brauchen ein „topic“.");
   if (c.cat === SUBJ_CAT && !str(c.trigger)) add("Subjuntivo-Karten brauchen einen „trigger“.");
+  if (c.cat === SUBJ_CAT && c.mode === undefined) add("Subjuntivo-Karten brauchen einen „mode“ (subj, ind oder both).");
+  if (c.mode !== undefined && !(c.mode in MODES)) add("„mode“ muss subj, ind oder both sein.");
+  if (c.mode === "both" && ans.length < 2) add("Bei „both“ müssen beide Formen in „answer“ stehen.");
+  if ((c.cat === SUBJ_CAT || c.trigger) && c.hint && MODE_WORDS.test(c.hint)) add("Der eigene Hinweis darf den Modus nicht nennen.");
   if (c.trigger !== undefined && !HAS_INF.test(c.sentence || "")) add("Bei Subjuntivo steht der Infinitiv in Klammern hinter der Lücke, z. B. „____ (venir)“.");
   if (c.xref !== undefined) {
     if (!c.xref || typeof c.xref !== "object" || Array.isArray(c.xref) || !Object.keys(c.xref).length) add("„xref“ braucht Einträge je Sprache.");
     else if (Object.entries(c.xref).some(([k, v]) => !XREF_LANGS.includes(k) || !str(v))) add("„xref“ erlaubt nur IT, FR, PT, DE, EN mit Text.");
   }
   if (c.plain) {
-    // Die schlichte Fassung (Umformulieren) darf weder Wendung noch Lösung noch Auslöser enthalten.
-    const leaks = [c.term, c.trigger, ...ans].filter(Boolean).filter((x) => hasPhrase(c.plain, x));
+    // Die schlichte Fassung (Umformulieren) darf Wendung und Auslöser nicht als Ganzes enthalten und kein Lösungswort ab 4 Buchstaben.
+    // Kurze Lösungen (de, en, a …) bleiben außen vor, sonst fiele fast jede Verb + Präposition-Karte durch.
+    const long = ans.filter((a) => [...a].filter((ch) => /\p{L}/u.test(ch)).length >= 4);
+    const leaks = [c.term, c.trigger, ...long].filter(Boolean).filter((x) => hasPhrase(c.plain, x));
     if (leaks.length) add(`„plain“ enthält ${[...new Set(leaks)].map((x) => `„${x}“`).join(", ")}.`);
   }
   if (c.area === "schule") {

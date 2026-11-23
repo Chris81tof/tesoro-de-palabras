@@ -34,8 +34,9 @@ Der Umbauplan steht in `UMBAUPLAN.md`.
 
 ## Kartenformat
 
-Pflicht: `id`, `area`, `cat`, `term`, `de`, `sentence` mit genau einer Lücke `____`, `answer`.
-Optional: `prompt` (spanische Erklärung), `wrong` (genau 3), `plain`, `reg`, `region`, `variants`, `trigger`, `topic`, `xref`, `unsure`, `note`, `hint`, `alt`.
+Pflicht: `id`, `area`, `cat`, `term`, `de`, `sentence` mit genau einer Lücke `____`, `answer`; `trigger` und `mode` bei Subjuntivo; `topic` bei Schulgesprächen.
+Optional: `prompt` (spanische Erklärung), `wrong` (genau 3), `plain`, `reg`, `region`, `variants`, `xref`, `unsure`, `note`, `hint`, `alt`.
+- `plain` (schlichte Fassung für „Umformulieren“) darf `term` und `trigger` nicht als Ganzes enthalten und kein Lösungswort ab 4 Buchstaben. Kürzere Lösungen (de, en, a …) zählen nicht, sonst fiele fast jede Verb + Präposition-Karte durch.
 
 - `cat`: Kollokation, Verb + Präposition, Subjuntivo-Auslöser, Feste Wendung, Wortbildung, Idiom, Konnektor, Falscher Freund, Sonstiges.
 - `term`: Grundform; **Nomen mit Artikel** („el ordenador“).
@@ -46,6 +47,7 @@ Optional: `prompt` (spanische Erklärung), `wrong` (genau 3), `plain`, `reg`, `r
 - Eine Variante kann `vulgar: true` tragen: Diese Form ist in der Region vulgär. Dann ist kein Beispiel nötig. Die App warnt, wenn sie eingegeben wird, und zeigt sie nicht unter „Auch:“.
 - `unsure`: Kartenebene, bezieht sich auf die Region der Hauptform. Auf einer Variante steht `unsure` an der Variante. Unsicheres zeigt die App mit „?“ **und** dem Wort „unsicher“.
 - `trigger`: Auslöser bei Subjuntivo-Karten, z. B. „es posible que“.
+- `mode`: `subj`, `ind` oder `both`; **Pflicht bei Kategorie „Subjuntivo-Auslöser“**. Bei `both` stehen beide Formen in `answer`. Hinweisstufen nennen den Modus nie (auch ein eigener `hint` nicht, ein Test prüft das), beim Aufdecken der Lösung wird er angezeigt. Bei Subjuntivo-Karten zeigt Hinweisstufe 1 statt der Kategorie nur „Auslöser: …“, denn die Kategorie „Subjuntivo-Auslöser“ würde den Modus verraten.
 - `topic`: nur Schulgespräche (z. B. Elternsprechtag, Fehlzeiten, Ordnungsmaßnahmen).
 - `xref`: optional, Querverweise und falsche Freunde zu IT/FR/PT/DE/EN.
 - Eigene Karten: IDs `u01 …`; Beispielkarten: `x01 …`.
@@ -55,7 +57,7 @@ Optional: `prompt` (spanische Erklärung), `wrong` (genau 3), `plain`, `reg`, `r
 - **Variante** (Einstellung im Menü): Spanien (es-ES) oder Lateinamerika (es-MX), mit Feinwahl des Landes. Karten mit Unterschieden zeigen zuerst die eigene Variante.
 - Andere Fassungen gelten als richtig; die App meldet „richtig, in deiner Variante: …“. Ist eine Form in einer Region vulgär, steht eine Warnung. **Ablenker in `wrong` sind nie eine gültige Variante** (Test).
 - **Akzente:** Eingabe ohne Akzent (`esta` statt `está`) zählt als richtig *mit Hinweis* (Stufe bleibt, morgen wieder fällig, siehe Hinweislogik). Umschalter „streng“ in den Einstellungen. `ñ` ist ein eigener Buchstabe und wird nie weggelassen (`año` ≠ `ano`). Umgekehrt/Interpunktion (¿ ¡) ist egal.
-- **Subjuntivo:** Die Lücke darf auf das konjugierte Verb fallen; der Infinitiv steht in Klammern hinter der Lücke („____ (venir)“). Hinweisstufe 1 nennt nur den Auslöser, **nicht den Modus**; der Modus erscheint erst mit der Lösung. Bei Auslösern mit beiden Modi sind beide Formen richtig. Ablenker sind nur wirklich falsche Formen.
+- **Subjuntivo:** Die Lücke darf auf das konjugierte Verb fallen; der Infinitiv steht in Klammern hinter der Lücke („____ (venir)“). Hinweisstufe 1 nennt nur den Auslöser, **nicht den Modus**; der Modus erscheint erst mit der Lösung. Bei `mode: both` sind beide Formen richtig. Ablenker sind nur wirklich falsche Formen.
 - **Erkennen von Wendungen im Text:** Stammvergleich mit kleinem Regelsatz und Liste unregelmäßiger Verben. Bei Unsicherheit nicht erkennen statt falsch erkennen. Eine ausdrückliche Markierung der Fundstelle im Text hat Vorrang: `[[kartenId:Text]]`.
 - Sprachausgabe: automatisch die beste spanische Stimme passend zur Variante (es-ES / es-MX), dann übrige spanische Stimmen, freie Stimmwahl.
 
@@ -67,6 +69,8 @@ Optional: `prompt` (spanische Erklärung), `wrong` (genau 3), `plain`, `reg`, `r
 - Fehler: zurück auf Stufe 0, heute wieder fällig; bei Bedeutung und Auswahl nur eine Stufe zurück.
 - Nur aktive Übungen verändern den Lernstand, der Passiv-Durchlauf nicht.
 - Gestufte Hinweise: Stufe 1 Kategorie, Gerüst und (bei Subjuntivo) Auslöser; Stufe 2 Anfangsbuchstaben; Stufe 3 Auswahl aus 4; dann „Lösung zeigen“ (gilt als falsch). Richtig mit Hinweis (auch fehlender Akzent): Stufe bleibt, morgen wieder fällig, Zähler `hinted`.
+- **Import:** Fehler werden pro Karte angezeigt; gültige Karten eines Pakets bleiben importierbar, auch wenn andere Karten Fehler haben.
+- **Akzent-Paare mit Bedeutungsunterschied** (si/sí, el/él, esta/está …): siehe UMBAUPLAN.md, Punkt „Offene Auslegungen“.
 - Beispielkarten (`x…`) liegen in `data/beispiel-karten.json`, sind klar als „Beispiel“ markiert, haben einen eigenen Fortschrittsbereich, zählen nicht in Lernstand, Tagesplan-Statistik und Gesamtansicht und lassen sich mit einem Knopf samt ihrem Fortschritt entfernen.
 
 ## Tests

@@ -36,7 +36,7 @@ test("topic nur bei Schulgesprächen, dort Pflicht", () => {
   assert.ok(errs({ area: "schule", topic: "Unsinn" }).length);
 });
 test("Subjuntivo: trigger Pflicht, Infinitiv in Klammern hinter der Lücke", () => {
-  const s = { cat: "Subjuntivo-Auslöser", sentence: "Es posible que ____ (venir) hoy.", answer: "venga" };
+  const s = { cat: "Subjuntivo-Auslöser", mode: "subj", sentence: "Es posible que ____ (venir) hoy.", answer: "venga" };
   assert.ok(errs({ ...s, wrong: undefined }).length, "ohne trigger");
   assert.deepEqual(errs({ ...s, trigger: "es posible que", wrong: undefined }), []);
   assert.ok(errs({ ...s, trigger: "x", sentence: "Es posible que ____ hoy.", wrong: undefined }).length, "ohne Infinitiv");
@@ -57,7 +57,7 @@ test("answersOf trennt mit |", () => assert.deepEqual(answersOf({ answer: "a | b
 test("plain darf weder Wendung noch Lösung noch Auslöser enthalten", () => {
   assert.ok(errs({ plain: "Hay que tomar una decisión." }).length, "term");
   assert.ok(errs({ plain: "Hay que tomar nota." }).length, "Lösung");
-  assert.ok(errs({ cat: "Subjuntivo-Auslöser", trigger: "es posible que", sentence: "Es posible que ____ (venir) hoy.", answer: "venga", wrong: undefined, plain: "Quizá, pero es posible que no." }).length, "trigger");
+  assert.ok(errs({ cat: "Subjuntivo-Auslöser", mode: "subj", trigger: "es posible que", sentence: "Es posible que ____ (venir) hoy.", answer: "venga", wrong: undefined, plain: "Quizá, pero es posible que no." }).length, "trigger");
   assert.deepEqual(errs({ plain: "Hay que decidir." }), []);
   assert.ok(hasPhrase("Ella viene hoy", "viene") && !hasPhrase("Ella conviene hoy", "viene"), "ganze Wörter");
 });
@@ -65,4 +65,26 @@ test("Bedeutungsübung: cue funktioniert ohne prompt", () => {
   assert.equal(cue({ de: "vielleicht" }), "vielleicht");
   assert.equal(cue({ prompt: "duda" }), "duda");
   assert.equal(cue({}), "");
+});
+
+test("plain: Wendung und Auslöser als Ganzes, Lösungswörter erst ab 4 Buchstaben", () => {
+  const prep = { cat: "Verb + Präposición".replace("Präposición", "Präposition"), term: "soñar con", sentence: "Sueña ____ ser médica.", answer: "con", wrong: ["de", "en", "por"] };
+  assert.deepEqual(errs({ ...prep, plain: "Quiere ser médica con todas sus fuerzas." }), [], "„con“ ist kurz und zählt nicht");
+  assert.ok(errs({ ...prep, plain: "Le gusta soñar con ser médica." }).length, "die ganze Wendung zählt");
+  assert.ok(errs({ answer: "tomar|de", wrong: ["hacer", "poner", "dar"], plain: "Hay que tomar nota." }).length, "Lösung ab 4 Buchstaben");
+  assert.deepEqual(errs({ answer: "tomar|de", wrong: ["hacer", "poner", "dar"], plain: "Hay de qué hablar." }), [], "„de“ ist kurz");
+});
+test("mode: Pflicht bei Subjuntivo-Auslösern, nur subj, ind oder both", () => {
+  const s = { cat: "Subjuntivo-Auslöser", trigger: "es posible que", sentence: "Es posible que ____ (venir) hoy.", answer: "venga", wrong: undefined };
+  assert.ok(errs(s).some((m) => /mode/.test(m)), "fehlt");
+  assert.deepEqual(errs({ ...s, mode: "subj" }), []);
+  assert.deepEqual(errs({ ...s, mode: "ind" }), []);
+  assert.ok(errs({ ...s, mode: "xyz" }).length);
+  assert.ok(errs({ ...s, mode: "both" }).length, "both braucht beide Formen");
+  assert.deepEqual(errs({ ...s, mode: "both", answer: "venga|viene" }), []);
+});
+test("eigener Hinweis darf bei Subjuntivo den Modus nicht nennen", () => {
+  const s = { cat: "Subjuntivo-Auslöser", mode: "subj", trigger: "es posible que", sentence: "Es posible que ____ (venir) hoy.", answer: "venga", wrong: undefined };
+  assert.ok(errs({ ...s, hint: "Denk an den Subjuntivo." }).length);
+  assert.deepEqual(errs({ ...s, hint: "Es geht um Unsicherheit." }), []);
 });

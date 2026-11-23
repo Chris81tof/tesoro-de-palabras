@@ -23,6 +23,7 @@ Stand: 23.11.2026. Vorbild: Englisch-Trainer `~/Projekte/word-bank-trainer` (nur
 
 - **Beispielkarten:** voll übbar, aber mit eigenem Fortschritt, nicht in Statistik/Gesamtansicht, Knopf „Beispielkarten entfernen“ löscht Karten und deren Fortschritt.
 - **`unsure` auf Kartenebene** gilt für die Region der Hauptform; bei `variants` hat jede Variante ein eigenes `unsure`.
+- **Akzent-Paare** (si/sí, el/él, esta/está): Stand heute zählt ein fehlender Akzent bei allen Wörtern als richtig mit Hinweis. Vorschlag: eine feste Liste solcher Paare, bei denen der Akzent die Bedeutung ändert, wird streng gewertet. Noch nicht umgesetzt, wartet auf Entscheidung.
 - **`ñ`** gilt als eigener Buchstabe (nicht weglassbar), weil `año`/`ano` verschiedene Wörter sind.
 
 ## Dateistruktur
@@ -62,11 +63,11 @@ scripts/                 serve.mjs
 2. **Kern:** `srs` (6 Stufen), `state` mit Bereichen und Prefs pro Bereich, `accent` (Vergleich mit/ohne Akzent, `ñ` fest), `variants` (eigene Variante zuerst, „richtig, in deiner Variante“, Vulgär-Warnung), `match` (Stammvergleich, unregelmäßige Verben, ausdrückliche Markierung zuerst), `subjuntivo` (beide Modi richtig, nur falsche Ablenker). Tests für jede Regel.
 3. **Grundgerüst und Navigation:** 5 Reiter, Bereichsumschalter, Gesamtansicht, Tagesplan pro Bereich, Übungen Stufe 1 bis 4 (Bedeutung, Karteikarten, Erklären, Auswahl, Lückentext, Übersetzen, Fehlersuche). Tests: Plan pro Bereich, Beispielkarten außerhalb der Statistik.
    - **iPhone-Test lokal im WLAN** (`node scripts/serve.mjs` auf allen Adressen): Bedienung, Tippflächen, Umschalter.
-4. **Hinweisstufen:** Gerüst, Anfangsbuchstaben, Auswahl aus 4; Auslöser bei Subjuntivo ohne Modus; Hinweis darf Lösung nicht verraten; Wertung (mit Hinweis = bleibt, morgen fällig). Tests wie im Englisch-Trainer plus Subjuntivo.
+4. **Hinweisstufen:** (bei Subjuntivo-Karten Stufe 1 nur „Auslöser: …“ statt Kategorie, Modus nie) Gerüst, Anfangsbuchstaben, Auswahl aus 4; Auslöser bei Subjuntivo ohne Modus; Hinweis darf Lösung nicht verraten; Wertung (mit Hinweis = bleibt, morgen fällig). Tests wie im Englisch-Trainer plus Subjuntivo.
 5. **Stufe 5:** Umformulieren, Satz schreiben, Texte (nur Karten mit Text), Prompt zum Kopieren, Textimport. Tests: Auswahl, Import, Fundstellen-Markierung.
 6. **Transfer, Passiv, Statistik, Sammlung:** Geschichte, Sprechen, Schreiben, Passiv-Durchlauf mit Vorlesen; Statistik pro Bereich und Gesamt; Sammlung mit Werkzeugen oben, Suche, Filter (Bereich, Kategorie, Region, Niveau). Tests: Filter, Nachladen, Statistik.
 7. **Karten bearbeiten:** Stift auf jeder Karte, Korrekturen (`fixes`), eigene Karten in beiden Bereichen, Prüfungen beim Speichern (u. a. Variante, `trigger`, Lücke, Hinweis ohne Lösung), „Original wiederherstellen“. Tests.
-8. **Kartenimport:** Formular, JSON-Import, Knopf „Prompt kopieren“ (Prompt kennt Bereich, Variante, `variants`, `trigger`, `xref`, `unsure`, Regeln für Schulgespräche ohne echte Namen). Tests: Parser, Fehlermeldungen, Dubletten.
+8. **Kartenimport:** Formular, JSON-Import mit Fehlern **pro Karte** (gültige Karten des Pakets bleiben importierbar), Knopf „Prompt kopieren“ (Prompt beschreibt auch `mode` und `plain`-Regel; Prompt kennt Bereich, Variante, `variants`, `trigger`, `xref`, `unsure`, Regeln für Schulgespräche ohne echte Namen). Tests: Parser, Fehlermeldungen, Dubletten.
 9. **Sicherung und Wiederherstellung:** Export/Import `format: 1`, Beispielkarten-Stand, Zwei-Tipp-Sicherheit. Tests: Hin- und Rückweg, beschädigte Dateien, neuere Version.
 10. **Sprachausgabe:** `speech` für Spanisch, es-ES/es-MX nach Variante, Premium/Enhanced bevorzugt, Effektstimmen ausschließen, Stimmwahl mit Probe. Tests mit Fake-Stimmen.
 11. **Design Azulejo:** Tokens, Kachelrahmen und Fugen, Piktogramme und Illustrationen als eigene SVGs, Dunkelmodus; Kontrastprüfung ≥ 4,5:1 (Test), keine Information nur über Farbe.

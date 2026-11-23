@@ -73,6 +73,17 @@ test("ausdrückliche Markierung der Fundstelle hat Vorrang", () => {
   assert.equal(findExpr("Hoy [[x02:se decidió]] algo.", c).found, false, "Markierung einer anderen Karte zählt nicht");
   assert.equal(findExpr("[[x02:tomó una decisión]]", c).found, true, "der Text einer fremden Markierung wird trotzdem automatisch geprüft");
 });
+test("Textabgleich: Artikel und Beugung egal, Rückbezugsverben", () => {
+  const dec = card("tomar una decisión");
+  assert.ok(usesExpr("Ayer tomó la decisión.", dec), "tomó la decisión findet tomar una decisión");
+  const cuenta = card("darse cuenta de");
+  assert.equal(key("darse cuenta de"), "dar cuenta de");
+  assert.ok(usesExpr("Me di cuenta de que era tarde.", cuenta), "me di cuenta de que");
+  assert.ok(usesExpr("Se dio cuenta de su error.", cuenta), "se dio cuenta de");
+  assert.ok(usesExpr("No nos dimos cuenta de nada.", cuenta), "nos dimos cuenta de");
+  assert.ok(!usesExpr("Se dio cuenta.", cuenta), "ohne „de“ wird bewusst nichts erkannt");
+  assert.ok(usesExpr("Quejarse de todo no sirve.", card("quejarse de")));
+});
 test("answerOk ohne Akzent-Nachsicht", () => {
   assert.ok(answerOk({ answer: "está|esta" }, "ESTÁ"));
   assert.ok(!answerOk({ answer: "está" }, "esta"));
