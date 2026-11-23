@@ -7,6 +7,7 @@ import * as todayView from "./views/today.js";
 import * as practiceView from "./views/practice.js";
 import * as settingsView from "./views/settings.js";
 import { later } from "./views/placeholder.js";
+import { applyTheme } from "./core/theme.js";
 
 const TABS = [
   { id: "today", label: "Heute", view: todayView },
@@ -28,9 +29,11 @@ async function boot() {
     return;
   }
 
+  const state = load(localStorage);
+  applyTheme(state.prefs.theme);
   const app = {
     base, examples,
-    state: load(localStorage),
+    state,
     plan: null,
     cards: () => allCards(app.base, app.examples, app.state),
     areaCards: () => inArea(app.cards(), app.state.prefs.area),
