@@ -16,6 +16,7 @@ import * as error from "../exercises/error.js";
 import * as rewrite from "../exercises/rewrite.js";
 import * as produce from "../exercises/produce.js";
 import * as cloze from "./cloze.js";
+import * as passive from "./passive.js";
 import { needArea } from "./today.js";
 
 const EX = { meaning, cards, explain, choice, gap, translate, error, rewrite, produce };
@@ -42,7 +43,17 @@ export function startText(app, id) {
   app.go("practice");
 }
 
-export function leave() { /* Vorlesen kommt in Schritt 10 */ }
+// Von der Statistik aus: Auswahl auf problematische Karten stellen
+export function pickProblems(app) {
+  session = null;
+  if (MODES[pick.mode]?.text || pick.mode === "passive") pick.mode = "meaning";
+  pick.scope = "problem";
+  pick.cat = "all";
+  app.go("practice");
+}
+
+// Beim Wechsel des Reiters: Passiv-Durchlauf anhalten
+export function leave() { passive.stop(); }
 
 function eligible(app) {
   const all = app.cards();
@@ -78,20 +89,29 @@ export function render(root, app) {
   if (app.state.prefs.area === "gesamt") { needArea(root, app, "Üben"); return; }
   if (session) renderSession(root, app);
   else if (pick.mode === "cloze" && cloze.isOpen(app.state.prefs.area)) cloze.renderText(root, app, () => render(root, app));
+  else if (pick.mode === "passive" && passive.isRunning()) passive.render(root, app, () => render(root, app));
   else renderPicker(root, app);
 }
 
 const modeBtn = (m, label) =>
-  `<button type="button" class="mode${m === pick.mode ? " on" : ""}" data-mode="${m}" aria-pressed="${m === pick.mode}">${icon(m)}<span>${esc(label)}</span></button>`;
+  `<button type="button" class="mode${m === pick.mode ? " on" : ""}" data-mode="${m}" aria-pressed="${m === pick.mode}">${icon(m === "passive" ? "cards" : m)}<span>${esc(label)}</span></button>`;
 
 function renderPicker(root, app) {
   const cats = [...new Set(app.areaCards().map((c) => c.cat))];
-  const isText = !!MODES[pick.mode].text;
-  const n = isText ? 0 : eligible(app).length;
+  const isPassive = pick.mode === "passive";
+  const isText = !isPassive && !!MODES[pick.mode].text;
+  const n = isText || isPassive ? 0 : eligible(app).length;
   let h = `<h1>Üben · ${esc(AREAS[app.state.prefs.area])}</h1>`;
   for (const lv of [1, 2, 3, 4, 5]) {
     const ms = Object.entries(MODES).filter(([, M]) => M.lv === lv);
     h += `<h2 class="lvl">${esc(LEVELS[lv])}</h2><div class="modes">` + ms.map(([m, M]) => modeBtn(m, M.label)).join("") + "</div>";
+  }
+  h += '<h2 class="lvl">Ohne Wertung</h2><div class="modes">' + modeBtn("passive", "Passiv-Durchlauf") + "</div>";
+  if (isPassive) {
+    root.innerHTML = h + '<div id="passiveArea"></div>';
+    root.querySelectorAll("button.mode").forEach((b) => b.addEventListener("click", () => { pick.mode = b.dataset.mode; render(root, app); }));
+    passive.renderSetup(root.querySelector("#passiveArea"), app, () => render(root, app));
+    return;
   }
   h += `<p class="hint">${esc(MODES[pick.mode].desc)}</p>`;
   if (isText) {

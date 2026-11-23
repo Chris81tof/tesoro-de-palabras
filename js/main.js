@@ -6,25 +6,27 @@ import { icon } from "./core/icons.js";
 import * as todayView from "./views/today.js";
 import * as practiceView from "./views/practice.js";
 import * as settingsView from "./views/settings.js";
-import { later } from "./views/placeholder.js";
+import * as transferView from "./views/transfer.js";
+import * as statsView from "./views/stats.js";
+import * as libraryView from "./views/library.js";
 import { applyTheme } from "./core/theme.js";
 import { stage5Ids } from "./core/texts.js";
 
 const TABS = [
   { id: "today", label: "Heute", view: todayView },
   { id: "practice", label: "Üben", view: practiceView },
-  { id: "transfer", label: "Transfer", view: later("Transfer", 6) },
-  { id: "stats", label: "Statistik", view: later("Statistik", 6) },
-  { id: "library", label: "Sammlung", view: later("Sammlung", 6) }
+  { id: "transfer", label: "Transfer", view: transferView },
+  { id: "stats", label: "Statistik", view: statsView },
+  { id: "library", label: "Sammlung", view: libraryView }
 ];
 const PAGES = [{ id: "settings", view: settingsView }];
 const VIEWS = { ...AREAS, [GESAMT]: "Gesamt" };
 
 async function boot() {
   const view = $("view");
-  let base, examples, baseTexts;
+  let base, examples, baseTexts, levels;
   try {
-    [base, examples, baseTexts] = await Promise.all(["data/cards.json", "data/beispiel-karten.json", "data/texts.json"].map((f) => fetch(f).then((r) => r.json())));
+    [base, examples, baseTexts, levels] = await Promise.all(["data/cards.json", "data/beispiel-karten.json", "data/texts.json", "data/levels.json"].map((f) => fetch(f).then((r) => r.json())));
   } catch {
     view.innerHTML = '<p class="msg err">Die Karten konnten nicht geladen werden.</p>';
     return;
@@ -33,7 +35,7 @@ async function boot() {
   const state = load(localStorage);
   applyTheme(state.prefs.theme);
   const app = {
-    base, examples, baseTexts,
+    base, examples, baseTexts, levels,
     state,
     plan: null,
     cards: () => allCards(app.base, app.examples, app.state),
@@ -74,7 +76,10 @@ async function boot() {
     window.scrollTo(0, 0);
   }
 
+  const setTopH = () => document.documentElement.style.setProperty("--topH", top.offsetHeight + "px");
   drawTop();
+  setTopH();
+  window.addEventListener("resize", setTopH);
   window.addEventListener("hashchange", show);
   document.addEventListener("keydown", practiceView.onKey);
   show();

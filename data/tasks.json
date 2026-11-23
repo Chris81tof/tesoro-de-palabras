@@ -1,0 +1,26 @@
+{
+  "allgemein": {
+    "speak": [
+      { "topic": "Gesellschaft", "q": "¿Hasta qué punto crees que las redes sociales han cambiado la forma en que nos relacionamos?" },
+      { "topic": "Arbeit", "q": "¿Es realista una semana laboral de cuatro días para la mayoría de las empresas? Justifica tu opinión." },
+      { "topic": "Umwelt", "q": "¿Pueden las personas, por sí solas, marcar la diferencia frente al cambio climático, o depende sobre todo de los gobiernos y las empresas?" }
+    ],
+    "write": [
+      { "type": "Carta formal", "task": "Escribe una carta al ayuntamiento de tu ciudad en la que propongas crear más carriles para bicicletas y expliques tus razones." },
+      { "type": "Artículo de opinión", "task": "Escribe un artículo de opinión sobre si deberían prohibirse los teléfonos móviles en las escuelas." },
+      { "type": "Correo informal", "task": "Escribe un correo a un amigo que vive en el extranjero y cuéntale cómo fue tu último viaje, con sus ventajas y sus inconvenientes." }
+    ]
+  },
+  "schule": {
+    "speak": [
+      { "topic": "Elterngespräch", "q": "Explica a una madre preocupada por qué su hijo ha tenido varias ausencias este trimestre y propón cómo podéis colaborar." },
+      { "topic": "Schülergespräch", "q": "Habla con un alumno que ha interrumpido varias veces la clase. Pregúntale qué ocurre y acordad un compromiso." },
+      { "topic": "Elternsprechtag", "q": "Resume en dos minutos el rendimiento de un alumno imaginario ante su familia: puntos fuertes, dificultades y próximos pasos." }
+    ],
+    "write": [
+      { "type": "Carta a las familias", "task": "Escribe una carta a las familias para convocarlas a la reunión de padres del primer trimestre. Indica la fecha, el orden del día y cómo pueden confirmar su asistencia." },
+      { "type": "Correo formal", "task": "Escribe un correo a una familia para informar de las ausencias reiteradas de su hijo y pedir un justificante por escrito." },
+      { "type": "Nota para el expediente", "task": "Redacta una nota breve sobre una conversación con un alumno tras un incidente en el recreo. Usa solo roles (el alumno, la tutora), sin nombres." }
+    ]
+  }
+}
