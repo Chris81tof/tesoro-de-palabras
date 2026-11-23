@@ -46,3 +46,12 @@ test("Übersetzen: Artikel optional, Akzent, Zusatz, Variante", () => {
   assert.equal(gradeTerm(by("x05"), "el ordenador", prefs()).variantMsg, null);
   assert.match(gradeTerm(by("x04"), "coger el autobús", prefs({ variant: "latam", country: "mx" })).warning || "", /vulgär/);
 });
+
+test("Akzent mit Bedeutungsunterschied: Lücke und Übersetzen werten falsch, mit klarer Rückmeldung", () => {
+  const c = { id: "t1", area: "allgemein", cat: "Sonstiges", term: "decir que sí", de: "bejahen", sentence: "Dijo que ____.", answer: "sí" };
+  const g = gradeGap(c, "si", prefs());
+  assert.deepEqual([g.ok, g.kind, g.accentAnswer], [false, "meaning", "sí"]);
+  const t = gradeTerm(c, "decir que si", prefs());
+  assert.deepEqual([t.ok, t.kind], [false, "meaning"]);
+  assert.equal(gradeTerm(c, "decir que sí", prefs()).ok, true);
+});

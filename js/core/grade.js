@@ -11,7 +11,7 @@ import { feedback, viewOf, regionLabel } from "./variants.js";
 export function gradeGap(card, given, prefs) {
   const j = judge(answersOf(card), given, prefs.strictAccents);
   const view = viewOf(card, prefs);
-  const out = { ok: j.ok, hinted: j.ok && j.hinted, kind: j.kind, accentAnswer: j.kind === "accent" ? j.answer : null, expected: view.shown.answers, variantMsg: null, warning: null };
+  const out = { ok: j.ok, hinted: j.ok && j.hinted, kind: j.kind, accentAnswer: j.kind === "accent" || j.kind === "meaning" ? j.answer : null, expected: view.shown.answers, variantMsg: null, warning: null };
   if (j.ok) {
     const f = feedback(card, j.answer, prefs);
     out.variantMsg = f.message;
@@ -28,15 +28,15 @@ export function gradeTerm(card, given, prefs) {
   const out = { ok: false, hinted: false, kind: "wrong", accentAnswer: null, expected: [view.shown.term], variantMsg: null, warning: null };
   if (!kg) return out;
   let j = judge(terms, kg, prefs.strictAccents);
-  if (!j.ok && j.kind !== "accent") {
+  if (!j.ok && j.kind !== "accent" && j.kind !== "meaning") {
     for (const t of terms) {
-      if (kg.startsWith(t + " ")) { j = judge([t], kg.slice(0, t.length), prefs.strictAccents); if (j.ok || j.kind === "accent") break; }
+      if (kg.startsWith(t + " ")) { j = judge([t], kg.slice(0, t.length), prefs.strictAccents); if (j.ok || j.kind === "accent" || j.kind === "meaning") break; }
     }
   }
   out.kind = j.kind;
   out.ok = j.ok;
   out.hinted = j.ok && j.hinted;
-  if (j.kind === "accent") out.accentAnswer = j.answer;
+  if (j.kind === "accent" || j.kind === "meaning") out.accentAnswer = j.answer;
   if (j.ok) {
     const match = key(j.answer, true);
     const mine = key(view.shown.term, true);

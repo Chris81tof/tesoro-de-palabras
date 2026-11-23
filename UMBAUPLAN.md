@@ -23,7 +23,7 @@ Stand: 23.11.2026. Vorbild: Englisch-Trainer `~/Projekte/word-bank-trainer` (nur
 
 - **Beispielkarten:** voll übbar, aber mit eigenem Fortschritt, nicht in Statistik/Gesamtansicht, Knopf „Beispielkarten entfernen“ löscht Karten und deren Fortschritt.
 - **`unsure` auf Kartenebene** gilt für die Region der Hauptform; bei `variants` hat jede Variante ein eigenes `unsure`.
-- **Akzent-Paare** (si/sí, el/él, esta/está): Stand heute zählt ein fehlender Akzent bei allen Wörtern als richtig mit Hinweis. Vorschlag: eine feste Liste solcher Paare, bei denen der Akzent die Bedeutung ändert, wird streng gewertet. Noch nicht umgesetzt, wartet auf Entscheidung.
+- **Akzent-Paare** (si/sí, el/él, esta/está, habló/hablo …): umgesetzt. Eine feste Liste in `js/core/accent.js` (`PAIRS`) und die Endung -ó zählen immer als falsch, auch im lockeren Modus. Alle anderen fehlenden Akzente bleiben „richtig mit Hinweis“.
 - **`ñ`** gilt als eigener Buchstabe (nicht weglassbar), weil `año`/`ano` verschiedene Wörter sind.
 
 ## Dateistruktur

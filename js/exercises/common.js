@@ -123,6 +123,7 @@ export function typedFeedback(r) {
   let head;
   if (r.ok && r.hinted) head = `✓ Richtig, aber der Akzent fehlt: ${r.accentAnswer}. Die Karte bleibt auf ihrer Stufe und kommt morgen wieder.`;
   else if (r.ok) head = "✓ " + (r.variantMsg ? cap(r.variantMsg) + "." : "Richtig.");
+  else if (r.kind === "meaning") head = `✗ Der Akzent ändert hier die Bedeutung: richtig ist ${r.accentAnswer} (deine Antwort: ${r.given}).`;
   else if (r.kind === "accent") head = `✗ Der Akzent fehlt oder ist falsch: ${r.accentAnswer} (strenger Modus).`;
   else head = `✗ Nicht ganz. Gesucht: ${r.expected.join(" / ")} (deine Antwort: ${r.given})`;
   if (r.ok && r.hinted && r.variantMsg) head += " " + cap(r.variantMsg) + ".";
