@@ -43,6 +43,7 @@ Optional: `prompt` (spanische Erklärung), `wrong` (genau 3), `plain`, `reg`, `r
 - `reg`: `i` informal, `f` formal (gilt auch für höflich/Amtssprache), `n` neutral, `d` veraltet, `c` umgangssprachlich, `s` Slang. Kein weiteres Kürzel.
 - `region`: `es`, `latam` oder ein Land (`mx`, `ar`, `cr` …). Fehlt es, gilt die Wendung überall.
 - `variants`: Liste `{ region, term, example, unsure? }`; Fassungen für andere Länder mit Beispiel. Die App zeigt zuerst die Fassung der gewählten Variante.
+- Eine Variante kann `vulgar: true` tragen: Diese Form ist in der Region vulgär. Dann ist kein Beispiel nötig. Die App warnt, wenn sie eingegeben wird, und zeigt sie nicht unter „Auch:“.
 - `unsure`: Kartenebene, bezieht sich auf die Region der Hauptform. Auf einer Variante steht `unsure` an der Variante. Unsicheres zeigt die App mit „?“ **und** dem Wort „unsicher“.
 - `trigger`: Auslöser bei Subjuntivo-Karten, z. B. „es posible que“.
 - `topic`: nur Schulgespräche (z. B. Elternsprechtag, Fehlzeiten, Ordnungsmaßnahmen).
@@ -55,7 +56,7 @@ Optional: `prompt` (spanische Erklärung), `wrong` (genau 3), `plain`, `reg`, `r
 - Andere Fassungen gelten als richtig; die App meldet „richtig, in deiner Variante: …“. Ist eine Form in einer Region vulgär, steht eine Warnung. **Ablenker in `wrong` sind nie eine gültige Variante** (Test).
 - **Akzente:** Eingabe ohne Akzent (`esta` statt `está`) zählt als richtig *mit Hinweis* (Stufe bleibt, morgen wieder fällig, siehe Hinweislogik). Umschalter „streng“ in den Einstellungen. `ñ` ist ein eigener Buchstabe und wird nie weggelassen (`año` ≠ `ano`). Umgekehrt/Interpunktion (¿ ¡) ist egal.
 - **Subjuntivo:** Die Lücke darf auf das konjugierte Verb fallen; der Infinitiv steht in Klammern hinter der Lücke („____ (venir)“). Hinweisstufe 1 nennt nur den Auslöser, **nicht den Modus**; der Modus erscheint erst mit der Lösung. Bei Auslösern mit beiden Modi sind beide Formen richtig. Ablenker sind nur wirklich falsche Formen.
-- **Erkennen von Wendungen im Text:** Stammvergleich mit kleinem Regelsatz und Liste unregelmäßiger Verben. Bei Unsicherheit nicht erkennen statt falsch erkennen. Eine ausdrückliche Markierung der Fundstelle im Text hat Vorrang.
+- **Erkennen von Wendungen im Text:** Stammvergleich mit kleinem Regelsatz und Liste unregelmäßiger Verben. Bei Unsicherheit nicht erkennen statt falsch erkennen. Eine ausdrückliche Markierung der Fundstelle im Text hat Vorrang: `[[kartenId:Text]]`.
 - Sprachausgabe: automatisch die beste spanische Stimme passend zur Variante (es-ES / es-MX), dann übrige spanische Stimmen, freie Stimmwahl.
 
 ## Lernlogik (nicht ohne Rückfrage ändern)
