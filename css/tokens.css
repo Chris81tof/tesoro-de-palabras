@@ -1,0 +1,44 @@
+/* Farben und Maße im Azulejo-Stil: Kalkweiß, Terrakotta, Ocker, Kobaltblau.
+   Alle Textfarben sollen auf beiden Hintergründen mindestens 4,5:1 erreichen (Schritt 11 prüft das mit einem Test). */
+:root {
+  --paper: #fbf4e6;
+  --paper-2: #f2e6cf;
+  --ink: #2a1d17;
+  --ink-2: #5a4a40;
+  --line: #d9c7a6;
+  --field: #8a6f55;
+  --accent: #9c3f1e;      /* Terrakotta */
+  --accent-ink: #fffaf0;
+  --cobalt: #1f4a8a;
+  --ochre: #e0a82e;
+  --good: #2c6a3a;
+  --good-bg: #e2eed9;
+  --bad: #a1281c;
+  --bad-bg: #f7ddd5;
+  --mark: #f6dc9a;
+  --press: rgba(42, 29, 23, .08);
+  --tap: 44px;
+  --radius: 6px;
+  --serif: ui-serif, "New York", Georgia, "Times New Roman", serif;
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #1f1612;
+    --paper-2: #2b1f19;
+    --ink: #f4e9d6;
+    --ink-2: #c9b79e;
+    --line: #4a372c;
+    --field: #a38568;
+    --accent: #f0956f;
+    --accent-ink: #1f1612;
+    --cobalt: #8fb2ee;
+    --ochre: #e8b94a;
+    --good: #8fd09c;
+    --good-bg: #20361f;
+    --bad: #ff9d8c;
+    --bad-bg: #4a211b;
+    --mark: #5c4a1c;
+    --press: rgba(244, 233, 214, .1);
+  }
+}

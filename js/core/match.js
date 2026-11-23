@@ -88,9 +88,10 @@ export function tokens(t) {
   return stripAccents(String(t).toLowerCase()).split(/[^a-zñ]+/).filter(Boolean).map((w) => (/(ar|er|ir)se$/.test(w) ? w.slice(0, -2) : w));
 }
 
-// Vergleichsform einer Wendung: ohne Artikel, alguien/algo, (se) und Klammern
-export function key(s) {
-  const t = stripAccents(clean(s)).replace(/\([^)]*\)/g, " ").replace(/[/,-]/g, " ").split(" ").filter((w) => w && !PLACEHOLDERS.has(w) && !CLITIC.has(w));
+// Vergleichsform einer Wendung: ohne Artikel, alguien/algo, (se) und Klammern.
+// keepAccents: Akzente bleiben stehen (für die Bewertung von Eingaben).
+export function key(s, keepAccents = false) {
+  const t = (keepAccents ? clean(s) : stripAccents(clean(s))).replace(/\([^)]*\)/g, " ").replace(/[/,-]/g, " ").split(" ").filter((w) => w && !PLACEHOLDERS.has(w) && !CLITIC.has(w));
   // darse → dar, quejarse → quejar: die Rückbezugsform steckt im Verb
   for (let i = 0; i < t.length; i++) if (/(ar|er|ir)se$/.test(t[i])) t[i] = t[i].slice(0, -2);
   const noDet = t.filter((w) => !DET.has(w));
