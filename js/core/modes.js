@@ -13,7 +13,7 @@ export const MODES = {
   meaning: {
     label: "Bedeutung", lv: 1, est: 0.5,
     need: (c, cards) => !!cue(c) && cards.filter((x) => cue(x)).length >= 4,
-    desc: "Wähle die richtige Bedeutung. Gut für den ersten Kontakt. Zählt bis Stufe 1."
+    desc: "Wähle aus vier Optionen: Deutsch steht da, du suchst die spanische Wendung (Richtung in den Einstellungen umstellbar). Gut für den ersten Kontakt. Zählt bis Stufe 1."
   },
   cards: {
     label: "Karteikarten", lv: 1, est: 0.5,

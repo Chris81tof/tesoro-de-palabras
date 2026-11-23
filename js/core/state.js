@@ -8,7 +8,7 @@ export const FORMAT = 1;
 export const GESAMT = "gesamt";
 
 export const DEFAULT_PREFS = {
-  area: "allgemein", variant: "es", country: "", strictAccents: false, theme: "auto",
+  area: "allgemein", variant: "es", country: "", strictAccents: false, theme: "auto", meaningDir: "de-es",
   speak: true, voice: "", rate: 0.92,
   budget: { allgemein: 40, schule: 20 },
   newPerDay: { allgemein: 10, schule: 5 }
@@ -79,6 +79,7 @@ export function normalize(raw) {
     d.variant = p.variant === "latam" ? "latam" : "es";
     d.country = d.variant === "latam" && typeof p.country === "string" ? p.country : "";
     d.strictAccents = p.strictAccents === true;
+    d.meaningDir = p.meaningDir === "es-de" ? "es-de" : "de-es";
     d.theme = p.theme === "light" || p.theme === "dark" ? p.theme : "auto";
     d.speak = typeof p.speak === "boolean" ? p.speak : d.speak;
     d.voice = typeof p.voice === "string" ? p.voice : "";

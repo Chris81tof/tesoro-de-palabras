@@ -12,6 +12,7 @@ Stand: 23.11.2026. Vorbild: Englisch-Trainer `~/Projekte/word-bank-trainer` (nur
 | Pro Bereich | Tagesplan, Wiederholung, Statistik, Zeitbudget, neue Karten pro Tag |
 | Variante | Menü: Spanien oder Lateinamerika, Feinwahl Land bleibt. Eigene Variante zuerst, andere Fassungen als „Auch:“ |
 | Subjuntivo | Lücke auf dem konjugierten Verb, Infinitiv in Klammern, Hinweis 1 nur der Auslöser |
+| Bedeutung | Auswahl in beide Richtungen, Standard Deutsch → Spanisch (aktiv zuerst), umschaltbar in den Einstellungen. Tagesplan und Lernlogik unverändert |
 | Akzente | Ohne Akzent = richtig mit Hinweis; Umschalter „streng“; `ñ` nie weglassen |
 | Texte (Stufe 5) | Nur Karten, die in einem Text vorkommen; keine Vollabdeckung nötig |
 | Design | Azulejo: Terrakotta, Ocker, Kobaltblau, Kalkweiß; Muster nur als Rahmen/Fugen; Systemschrift; eigene SVGs |

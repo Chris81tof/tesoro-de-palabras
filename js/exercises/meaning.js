@@ -1,26 +1,22 @@
-// Stufe 1 · Bedeutung: die richtige Bedeutung aus vier wählen
-import { esc, shuffle } from "../core/dom.js";
+// Stufe 1 · Bedeutung: Richtung nach Einstellung (Standard Deutsch → Spanisch), Auswahl aus vier
+import { esc } from "../core/dom.js";
 import { cue } from "../core/modes.js";
+import { meaningOptions } from "../core/meaning.js";
 import { progressHtml, chip, sentenceHtml, optsHtml, bindOpts, fb, refHtml, nextBtn, bindNext } from "./common.js";
 
 export function render(box, c, s) {
+  const es = s.prefs.meaningDir !== "es-de";
   if (!s.ui || s.ui.id !== c.id) {
-    const correct = cue(c);
-    const pool = s.cards.filter((o) => o.id !== c.id && cue(o) && cue(o) !== correct);
-    const picks = [...shuffle(pool.filter((o) => o.cat === c.cat)), ...shuffle(pool.filter((o) => o.cat !== c.cat))];
-    const seen = new Set([correct]);
-    const opts = [{ t: correct, ok: true }];
-    for (const o of picks) {
-      if (opts.length >= 4) break;
-      const t = cue(o);
-      if (!seen.has(t)) { seen.add(t); opts.push({ t, ok: false }); }
-    }
-    s.ui = { id: c.id, opts: shuffle(opts), picked: null };
+    const m = meaningOptions(c, s.cards, s.prefs);
+    s.ui = { id: c.id, solution: m.solution, opts: m.options, picked: null };
   }
-  let h = progressHtml(s) + '<div class="card">' + chip(c, "Bedeutung") + `<p class="term">${esc(c.term)}</p>` +
+  let h = progressHtml(s) + '<div class="card">' + chip(c, "Bedeutung");
+  if (es) h += `<p class="de">${esc(cue(c))}</p><p class="prompt">Wie heißt die Wendung auf Spanisch?</p>`;
+  else h += `<p class="term">${esc(c.term)}</p>` +
     (c.sentence ? `<p class="sentence">${sentenceHtml(c.sentence, s.result ? c.answer.split("|")[0] : "")}</p>` : "") +
-    '<p class="prompt">Was bedeutet die Wendung hier?</p>' + optsHtml(s);
-  if (s.result) h += fb(s.result.ok, s.result.ok ? "" : "Gesucht: " + cue(c)) + refHtml(c, s.prefs, { sentence: false }) + nextBtn();
+    '<p class="prompt">Was bedeutet die Wendung hier?</p>';
+  h += optsHtml(s);
+  if (s.result) h += fb(s.result.ok, s.result.ok ? "" : "Gesucht: " + s.ui.solution) + refHtml(c, s.prefs, { sentence: es }) + nextBtn();
   box.innerHTML = h + "</div>";
   bindOpts(box, s);
   bindNext(box, s);
