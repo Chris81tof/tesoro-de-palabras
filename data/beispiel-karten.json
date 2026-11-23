@@ -1,0 +1,91 @@
+[
+  {
+    "id": "x01", "example": true, "area": "allgemein", "cat": "Kollokation", "level": "A2",
+    "term": "tomar una decisión", "de": "eine Entscheidung treffen",
+    "prompt": "elegir una opción después de pensar",
+    "sentence": "Tenemos que ____ una decisión antes del viernes.", "answer": "tomar",
+    "wrong": ["hacer", "poner", "dar"], "plain": "Tenemos que decidir antes del viernes.", "reg": "n",
+    "xref": { "EN": "make a decision (nicht *hacer una decisión*)" },
+    "note": "BEISPIEL. Nicht „hacer una decisión“, auch wenn es im Deutschen und Englischen „treffen/make“ heißt."
+  },
+  {
+    "id": "x02", "example": true, "area": "allgemein", "cat": "Subjuntivo-Auslöser", "level": "B1",
+    "term": "es posible que", "de": "es ist möglich, dass",
+    "sentence": "Es posible que mañana ____ (llover) en el norte.", "answer": "llueva",
+    "wrong": ["llueve", "lloverá", "llovió"], "plain": "Quizá mañana haya lluvia en el norte.", "reg": "n",
+    "trigger": "es posible que",
+    "note": "BEISPIEL. Nach „es posible que“ steht immer der Subjuntivo."
+  },
+  {
+    "id": "x03", "example": true, "area": "allgemein", "cat": "Subjuntivo-Auslöser", "level": "B2",
+    "term": "tal vez", "de": "vielleicht",
+    "sentence": "Tal vez ella ____ (venir) a la fiesta.", "answer": "venga|viene",
+    "wrong": ["vienen", "vengamos", "venir"], "plain": "Ella quizá venga a la fiesta.", "reg": "n",
+    "trigger": "tal vez",
+    "note": "BEISPIEL. Nach „tal vez“ sind beide Modi möglich: Subjuntivo (Zweifel) oder Indikativ (eher sicher)."
+  },
+  {
+    "id": "x04", "example": true, "area": "allgemein", "cat": "Feste Wendung", "level": "A2",
+    "term": "coger el autobús", "region": "es", "de": "den Bus nehmen",
+    "sentence": "Para ir al trabajo suelo ____ el autobús de las ocho.", "answer": "coger|tomar",
+    "wrong": ["llevar", "poner", "subir"], "plain": "Voy al trabajo en el autobús de las ocho.", "reg": "n",
+    "variants": [
+      { "region": "latam", "term": "tomar el autobús", "answer": "tomar", "example": "Todos los días tomo el autobús para ir al trabajo." },
+      { "region": "ar", "term": "tomar el colectivo", "answer": "tomar", "example": "Tomo el colectivo a las ocho." },
+      { "region": "mx", "term": "coger el autobús", "answer": "coger", "vulgar": true }
+    ],
+    "note": "BEISPIEL. „coger“ ist in Spanien alltäglich, in Mexiko und weiten Teilen Lateinamerikas vulgär. Dort „tomar“."
+  },
+  {
+    "id": "x05", "example": true, "area": "allgemein", "cat": "Sonstiges", "level": "A1",
+    "term": "el ordenador", "region": "es", "de": "der Computer",
+    "sentence": "Mi ____ no arranca desde ayer.", "answer": "ordenador|computadora|computador",
+    "wrong": ["orden", "computar", "ordenar"], "plain": "Mi aparato no funciona desde ayer.", "reg": "n",
+    "variants": [
+      { "region": "latam", "term": "la computadora", "answer": "computadora", "example": "Mi computadora no arranca desde ayer." },
+      { "region": "co", "term": "el computador", "answer": "computador", "example": "Mi computador no arranca desde ayer.", "unsure": true }
+    ],
+    "note": "BEISPIEL. Spanien: el ordenador, Lateinamerika meist la computadora."
+  },
+  {
+    "id": "x06", "example": true, "area": "schule", "topic": "Elternsprechtag", "cat": "Kollokation", "level": "B2",
+    "term": "concertar una cita", "de": "einen Termin vereinbaren",
+    "sentence": "Le propongo ____ una cita para hablar del rendimiento de su hijo.", "answer": "concertar|fijar",
+    "wrong": ["tomar", "llevar", "entregar"], "plain": "Le propongo hablar del rendimiento de su hijo en otra reunión.", "reg": "f",
+    "note": "BEISPIEL. Formell, passend für Einladungen an die Eltern."
+  },
+  {
+    "id": "x07", "example": true, "area": "schule", "topic": "Elternsprechtag", "cat": "Falscher Freund", "level": "B1",
+    "term": "asistir a", "de": "teilnehmen an, besuchen",
+    "sentence": "Ayer no pude ____ a la reunión de padres.", "answer": "asistir",
+    "wrong": ["ayudar", "asistar", "presentar"], "plain": "Ayer no pude estar en la reunión de padres.", "reg": "n",
+    "xref": { "EN": "to attend = asistir a; to assist = ayudar", "DE": "assistieren = ayudar, nicht asistir" },
+    "note": "BEISPIEL. Falscher Freund zu englisch „assist“ und deutsch „assistieren“."
+  },
+  {
+    "id": "x08", "example": true, "area": "schule", "topic": "Fehlzeiten", "cat": "Subjuntivo-Auslöser", "level": "B2",
+    "term": "pedir que", "de": "bitten, dass",
+    "sentence": "Le pido que ____ (justificar) las ausencias de su hija por escrito.", "answer": "justifique",
+    "wrong": ["justifica", "justificar", "justificó"], "plain": "Necesito un justificante escrito de las ausencias de su hija.", "reg": "f",
+    "trigger": "pedir que",
+    "note": "BEISPIEL. Bitten und Auffordern löst den Subjuntivo aus."
+  },
+  {
+    "id": "x09", "example": true, "area": "schule", "topic": "Ordnungsmaßnahmen", "cat": "Kollokation", "level": "C1",
+    "term": "imponer una sanción", "de": "eine Sanktion verhängen",
+    "sentence": "El consejo escolar decidió ____ una sanción al alumno por la pelea.", "answer": "imponer",
+    "wrong": ["colocar", "hacer", "tener"], "plain": "El consejo escolar decidió castigar al alumno por la pelea.", "reg": "f",
+    "note": "BEISPIEL. Amtssprache. Man „impone“ auch multas, castigos und normas."
+  },
+  {
+    "id": "x10", "example": true, "area": "schule", "topic": "Elterngespräch", "cat": "Sonstiges", "level": "B2",
+    "term": "el boletín de notas", "region": "es", "unsure": true, "de": "das Zeugnis, der Notenbericht ?",
+    "sentence": "Hoy se reparten los ____ de notas del trimestre.", "answer": "boletines|boletas",
+    "wrong": ["boletos", "billetes", "libretos"], "plain": "Hoy los alumnos reciben sus notas del trimestre.", "reg": "n",
+    "variants": [
+      { "region": "mx", "term": "la boleta de calificaciones", "answer": "boletas", "example": "Mañana se entrega la boleta de calificaciones.", "unsure": true },
+      { "region": "ar", "term": "el boletín", "answer": "boletines", "example": "Los boletines llegan a casa en julio.", "unsure": true }
+    ],
+    "note": "BEISPIEL. Die regionalen Bezeichnungen sind mit ? markiert und sollten geprüft werden."
+  }
+]
