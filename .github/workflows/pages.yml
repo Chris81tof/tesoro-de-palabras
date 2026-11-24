@@ -10,6 +10,7 @@ permissions:
   contents: read
   pages: write
   id-token: write
+  actions: read   # nur zum Nachsehen, ob das Paket schon in der Artefaktliste steht
 
 concurrency:
   group: pages
@@ -41,5 +42,18 @@ jobs:
       - uses: actions/upload-pages-artifact@v3
         with:
           path: site
+      # GitHub zeigt das hochgeladene Paket manchmal erst einen Moment später in der Artefaktliste an;
+      # dann scheitert deploy-pages mit „Found 0 artifact(s)“. Darum erst nachsehen (höchstens eine Minute).
+      - name: Warten, bis das Paket in der Artefaktliste steht
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          for i in $(seq 1 12); do
+            n=$(gh api "repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts" --jq '[.artifacts[] | select(.name=="github-pages")] | length')
+            echo "Versuch $i: $n Paket(e) gefunden"
+            [ "$n" -ge 1 ] && exit 0
+            sleep 5
+          done
+          echo "Das Paket steht noch nicht in der Liste; deploy-pages versucht es trotzdem."
       - id: deployment
         uses: actions/deploy-pages@v4

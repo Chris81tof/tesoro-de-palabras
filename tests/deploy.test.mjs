@@ -49,10 +49,21 @@ test("der Workflow testet vor dem Veröffentlichen und läuft nur auf main", () 
   assert.match(yml, /push:\s*\n\s*branches: \[main\]/);
   assert.match(yml, /run: node --test/);
   assert.match(yml, /deploy:\s*\n\s*needs: test/);
-  assert.match(yml, /permissions:\s*\n\s*contents: read\s*\n\s*pages: write\s*\n\s*id-token: write/);
+  assert.match(yml, /permissions:\s*\n\s*contents: read\s*\n\s*pages: write\s*\n\s*id-token: write\s*\n\s*actions: read/);
+  assert.ok(!/(?:contents|pages|actions|id-token): write\b[\s\S]*(?:issues|pull-requests|packages|deployments): write/.test(yml), "keine weiteren Schreibrechte");
   assert.ok(!/secrets\./.test(yml), "keine Geheimnisse nötig");
   for (const m of yml.matchAll(/uses: ([^\s@]+)@(\S+)/g)) assert.match(m[2], /^v\d+$/, `${m[1]} soll auf eine Hauptversion festgelegt sein`);
   assert.match(yml, /node-version: 22/);
+});
+test("der Workflow wartet vor deploy-pages, bis das Paket in der Artefaktliste steht (GitHub zeigt es manchmal verspätet)", () => {
+  const yml = read(".github/workflows/pages.yml");
+  const wait = yml.indexOf("Warten, bis das Paket");
+  assert.ok(yml.indexOf("actions/upload-pages-artifact") < wait && wait < yml.indexOf("actions/deploy-pages"), "Reihenfolge: hochladen, warten, veröffentlichen");
+  assert.match(yml, /GH_TOKEN: \$\{\{ github\.token \}\}/, "das eingebaute Token, kein eigenes Geheimnis");
+  assert.match(yml, /select\(\.name=="github-pages"\)/);
+  assert.match(yml, /seq 1 12/);
+  assert.match(yml, /sleep 5/);
+  assert.match(yml, /deploy-pages versucht es trotzdem/, "nach einer Minute wird trotzdem versucht, nicht abgebrochen");
 });
 test("README und Projektdateien für das Repository sind da, .gitignore schützt lokale Dateien", () => {
   assert.match(read("README.md"), /node --test/);
