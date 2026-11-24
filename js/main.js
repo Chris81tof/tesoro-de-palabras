@@ -45,6 +45,8 @@ async function boot() {
     areaCards: () => inArea(app.cards(), app.state.prefs.area),
     save: () => save(localStorage, app.state),
     invalidatePlan: () => { app.plan = null; },
+    // Stand ersetzen (Wiederherstellen aus einer Sicherung)
+    replaceState: (next) => { app.state = next; app.save(); app.invalidatePlan(); applyTheme(next.prefs.theme); drawTop(); show(); },
     setArea: (a) => { app.state.prefs.area = a; app.save(); app.invalidatePlan(); drawTop(); show(); },
     go: (id) => {
       if (location.hash !== "#" + id) location.hash = id;

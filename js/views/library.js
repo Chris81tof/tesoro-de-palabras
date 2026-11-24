@@ -7,6 +7,7 @@ import { peekProgress, isExample, GESAMT } from "../core/state.js";
 import { today } from "../core/dates.js";
 import { icon } from "../core/icons.js";
 import { REG, REGION, AREAS, CATS, TOPICS, modeLabel } from "../core/cards.js";
+import { exportData, backupName, parseBackup, markBackup, daysSinceBackup, describeState, snapshotBefore, readSnapshot, clearSnapshot } from "../core/backup.js";
 import { cardPrompt, parseCards, summarizeImport, fixPrompt } from "../core/import.js";
 import { viewOf, regionLabel } from "../core/variants.js";
 import { openEditor } from "./editor.js";
@@ -14,10 +15,15 @@ import { isEditable } from "../core/edit.js";
 import { PAGE, STAT_OPTS, filterCards, categoriesOf, statusLabel, nextShown, restCount, toggleOne, toggleIn, regionOptions, levelOptions, levelOf, isEdited } from "../core/library.js";
 
 // tool: das offene Werkzeug, expanded: die aufgeklappte Karte, shown: wie viele Karten gezeichnet werden
+// Sicherung: eingelesene Datei wartet auf die Bestätigung
+const bk = { pending: null, warnings: [], text: "", error: "" };
 const imp = { area: "", cat: "", topic: "", count: 10, terms: "", paste: "", errors: [], lines: [], kind: "" };
 const ui = { editing: undefined, scrollY: 0, q: "", cat: "all", stat: "all", region: "all", level: "all", shown: PAGE, tool: "", expanded: "", selecting: false, picked: new Set(), areaFilter: "all" };
 let flash = {};
 let io = null;
+
+// Vom Tagesplan aus: die Sammlung mit geöffnetem Werkzeug zeigen
+export function openTool(id) { ui.tool = id; }
 
 export function leave() {
   if (io) { io.disconnect(); io = null; }
@@ -97,6 +103,34 @@ const msg = (id) => {
   return `<p class="msg${f ? " " + f[1] : ""}" id="${id}" role="status">${f ? esc(f[0]) : ""}</p>`;
 };
 
+const dateDe = (ms) => new Date(ms).toLocaleDateString("de-DE", { day: "numeric", month: "long", year: "numeric" });
+
+// Werkzeug „Sichern und Wiederherstellen“
+function backupBody(app) {
+  const d = daysSinceBackup(app.state);
+  const last = d === null ? "noch nie" : d === 0 ? "heute" : d === 1 ? "gestern" : `vor ${d} Tagen`;
+  const snap = readSnapshot(localStorage);
+  const canShare = typeof navigator !== "undefined" && typeof navigator.canShare === "function";
+  return '<p class="hint">Die Sicherung ist eine Datei mit deinem ganzen Stand: Lernstand, eigene Karten, Korrekturen, Texte und Einstellungen. Mach sie regelmäßig und vor jedem Gerätewechsel. Die Karten aus den Startdaten gehören nicht dazu.</p>' +
+    `<p>Zuletzt gesichert: <strong>${esc(last)}</strong></p>` +
+    '<div class="btnrow"><button type="button" class="primary" id="bkDown">Sicherung herunterladen</button>' +
+    (canShare ? '<button type="button" id="bkShare">Teilen oder in Dateien sichern</button>' : "") +
+    '<button type="button" id="bkCopy">Als Text kopieren</button></div>' + msg("bkMsg") +
+    '<h3>Wiederherstellen</h3><p class="hint">Der aktuelle Stand auf diesem Gerät wird dabei ersetzt. Vorher legt die App ihn zur Seite, du kannst den Schritt rückgängig machen.</p>' +
+    '<label class="filebtn" for="bkFile">Sicherungsdatei wählen</label><input type="file" id="bkFile" accept=".json,application/json" class="sr">' +
+    `<label class="field" for="bkPaste">oder den Text der Sicherung einfügen</label><textarea id="bkPaste" class="mid" spellcheck="false">${esc(bk.text)}</textarea>` +
+    '<div class="btnrow"><button type="button" id="bkCheck">Sicherung prüfen</button></div>' +
+    (bk.error ? `<p class="msg err" role="alert">${esc(bk.error)}</p>` : "") +
+    (bk.pending
+      ? '<div class="card"><p><strong>Diese Sicherung ist gültig.</strong></p>' +
+        `<p>In der Sicherung: ${esc(describeState(bk.pending))}.</p><p>Jetzt auf diesem Gerät: ${esc(describeState(app.state))}.</p>` +
+        bk.warnings.map((w) => `<p class="msg err">${esc(w)}</p>`).join("") +
+        '<div class="btnrow"><button type="button" class="primary" id="bkGo">Wiederherstellen</button><button type="button" id="bkCancel">Abbrechen</button></div></div>'
+      : "") +
+    (snap ? `<div class="card"><p>Stand vor der letzten Wiederherstellung (${esc(dateDe(Date.parse(snap.at)))}): ${esc(describeState(snap.state))}.</p><button type="button" id="bkUndo">Rückgängig machen</button></div>` : "") +
+    msg("bkMsg2");
+}
+
 // Werkzeug „Neue Karten von Claude“: Prompt kopieren, Antwort einfügen, importieren
 function importBody(app, gesamt) {
   const cur = app.state.prefs.area;
@@ -144,7 +178,7 @@ export function render(root, app) {
   h += '<div class="tools">' +
     tool("add", "Eigene Karte anlegen", '<p class="hint">Eine eigene Wendung mit Satz, Lösung und Hilfen anlegen, in „Allgemein“ oder „Schulgespräche“. Das Formular prüft alles wie der Import.</p><button type="button" class="primary" id="addBtn">Neue Karte anlegen</button>' + msg("addMsg")) +
     tool("claude", "Neue Karten von Claude", importBody(app, gesamt)) +
-    tool("backup", "Sichern und Wiederherstellen", '<p class="hint">Sicherung und Wiederherstellung kommen mit Schritt 9.</p>') +
+    tool("backup", "Sichern und Wiederherstellen", backupBody(app)) +
     tool("reset", "Zurücksetzen", '<p class="hint">Setzt den Lernstand aller Karten (auch der Beispielkarten) zurück. Karten, eigene Karten und Einstellungen bleiben.</p>' +
       '<button type="button" id="rsBtn">Lernstand zurücksetzen</button>' + msg("rsMsg") +
       (hasExamples ? '<p class="hint">Die Beispielkarten entfernst du in den Einstellungen.</p>' : "")) +
@@ -185,6 +219,78 @@ export function render(root, app) {
       t.querySelector(".toolbody").hidden = !open;
     });
   }));
+  // Sicherung
+  const done = (text) => { markBackup(state); app.save(); flash.bkMsg = [text, "ok"]; rerender(); };
+  const dump = () => JSON.stringify(exportData(state), null, 1);
+  root.querySelector("#bkDown").addEventListener("click", () => {
+    const text = dump();
+    const url = URL.createObjectURL(new Blob([text], { type: "application/json" }));
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = backupName();
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 10000);
+    done("Sicherung heruntergeladen. Prüfe, dass die Datei „" + backupName() + "“ in deinen Downloads oder in Dateien liegt.");
+  });
+  root.querySelector("#bkShare")?.addEventListener("click", async () => {
+    const file = new File([dump()], backupName(), { type: "application/json" });
+    try {
+      if (!navigator.canShare({ files: [file] })) throw new Error("nicht möglich");
+      await navigator.share({ files: [file], title: "Tesoro de Palabras · Sicherung" });
+      done("Sicherung geteilt.");
+    } catch (e) {
+      if (e && e.name === "AbortError") return;
+      flash.bkMsg = ["Teilen ist hier nicht möglich. Nimm „Sicherung herunterladen“ oder „Als Text kopieren“.", "err"];
+      rerender();
+    }
+  });
+  root.querySelector("#bkCopy").addEventListener("click", async () => {
+    try { await navigator.clipboard.writeText(dump()); done("Sicherung als Text kopiert. Füge sie jetzt in eine Notiz oder Datei ein, die du aufhebst."); }
+    catch { flash.bkMsg = ["Kopieren wurde blockiert. Nimm „Sicherung herunterladen“.", "err"]; rerender(); }
+  });
+  const check = (text) => {
+    bk.text = text;
+    bk.pending = null;
+    bk.error = "";
+    bk.warnings = [];
+    try {
+      const r = parseBackup(text);
+      bk.pending = r.state;
+      bk.warnings = r.warnings;
+    } catch (e) { bk.error = e.message; }
+    ui.tool = "backup";
+    rerender();
+  };
+  root.querySelector("#bkFile").addEventListener("change", async (e) => {
+    const f = e.target.files && e.target.files[0];
+    if (f) check(await f.text());
+  });
+  root.querySelector("#bkCheck").addEventListener("click", () => {
+    const t = root.querySelector("#bkPaste").value;
+    if (!t.trim()) { bk.error = "Wähle eine Sicherungsdatei oder füge den Text der Sicherung ein."; bk.pending = null; ui.tool = "backup"; rerender(); return; }
+    check(t);
+  });
+  root.querySelector("#bkCancel")?.addEventListener("click", () => { bk.pending = null; bk.text = ""; bk.warnings = []; ui.tool = "backup"; rerender(); });
+  const go = root.querySelector("#bkGo");
+  if (go) armed(go, "Sicher? Der Stand auf diesem Gerät wird ersetzt", () => {
+    snapshotBefore(localStorage, app.state);
+    const next = bk.pending;
+    bk.pending = null; bk.text = ""; bk.warnings = [];
+    ui.tool = "backup";
+    flash.bkMsg2 = ["Wiederhergestellt. Der alte Stand liegt zur Seite und lässt sich rückgängig machen.", "ok"];
+    app.replaceState(next);
+  });
+  const undo = root.querySelector("#bkUndo");
+  if (undo) armed(undo, "Sicher? Der jetzige Stand wird ersetzt", () => {
+    const snap = readSnapshot(localStorage);
+    if (!snap) return;
+    clearSnapshot(localStorage);
+    ui.tool = "backup";
+    flash.bkMsg2 = ["Der frühere Stand ist zurück.", "ok"];
+    app.replaceState(snap.state);
+  });
   // Import
   const impArea = () => (root.querySelector("#imArea")?.value in AREAS ? root.querySelector("#imArea").value : "allgemein");
   const keepImp = () => {

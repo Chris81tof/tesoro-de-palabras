@@ -9,6 +9,8 @@ import { today } from "../core/dates.js";
 import { icon } from "../core/icons.js";
 import { start, startText } from "./practice.js";
 import { suggestTexts, textsOf } from "../core/texts.js";
+import { needsBackup, daysSinceBackup } from "../core/backup.js";
+import { openTool } from "./library.js";
 
 const BUDGETS = [10, 20, 30, 40, 60, 90];
 const NEW_PER_DAY = [3, 5, 10, 15, 20, 30];
@@ -79,7 +81,13 @@ export function render(root, app) {
   h += '<h2>Lernstand</h2><div class="tiles">' + tile("○", by.new, STATUS.new) + tile("◐", by.developing, STATUS.developing) +
     tile("▲", by.problem, STATUS.problem) + tile("●", by.mastered, STATUS.mastered) + "</div>";
   if (cards.some((c) => c.example)) h += '<p class="hint">Beispielkarten stehen im Plan, zählen aber nicht in den Lernstand. Du entfernst sie unter Einstellungen.</p>';
+  if (needsBackup(state)) {
+    const d = daysSinceBackup(state);
+    h += `<h2>Sicherung</h2><p class="prompt">${d === null ? "Du hast noch nie gesichert." : `Deine letzte Sicherung ist ${d} Tage alt.`} Ohne Sicherung gehen Lernstand und eigene Karten verloren, wenn der Browser seine Daten löscht.</p>` +
+      '<div class="btnrow"><button type="button" id="goBackup">Jetzt sichern</button></div>';
+  }
   root.innerHTML = h;
+  root.querySelector("#goBackup")?.addEventListener("click", () => { openTool("backup"); app.go("library"); });
 
   root.querySelectorAll("button[data-blk]").forEach((btn) => btn.addEventListener("click", () => {
     const b = plan.blocks[Number(btn.dataset.blk)];

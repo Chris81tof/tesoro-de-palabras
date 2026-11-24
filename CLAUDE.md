@@ -73,6 +73,12 @@ Optional: `prompt` (spanische Erklärung), `wrong` (genau 3), `plain`, `reg`, `r
 - **Akzent-Paare mit Bedeutungsunterschied** (si/sí, el/él, esta/está, habló/hablo …) zählen immer als falsch, auch im lockeren Modus. Die Liste steht in `js/core/accent.js` (`PAIRS`); neue Paare dort eintragen und testen.
 - Beispielkarten (`x…`) liegen in `data/beispiel-karten.json`, sind klar als „Beispiel“ markiert, haben einen eigenen Fortschrittsbereich, zählen nicht in Lernstand, Tagesplan-Statistik und Gesamtansicht und lassen sich mit einem Knopf samt ihrem Fortschritt entfernen.
 
+## Sicherung
+
+- Format 1: `{ app: "tesoro-de-palabras", format: 1, exported, cards, progress, custom, deleted, fixes, texts, textLog, drafts, examples, backup, prefs }`. Die Karten aus `data/` stehen nicht darin. Neue Felder im Gerätestand gehören in `normalize` (`js/core/state.js`) und in den Rundreise-Test `tests/backup.test.mjs`.
+- Wiederherstellen ersetzt den ganzen Stand, legt den alten unter `tesoro-de-palabras-v1-vorher` zur Seite und braucht eine Zwei-Tipp-Bestätigung.
+- Auf Wunsch kann Claude Code eigene Karten und Korrekturen aus einer Sicherung fest in `data/cards.json` übernehmen (IDs bleiben, danach `sw.js` hochzählen, Tests laufen lassen). Das passiert nur auf Anweisung.
+
 ## Korrekturen an Karten
 
 - Die App kann jede Karte außer den Beispielkarten bearbeiten (Stift-Symbol). Änderungen an Karten aus `data/cards.json` liegen als Korrektur pro Karten-ID in `fixes` im Gerätespeicher (nur die geänderten Felder, dazu `level`; `""` oder eine leere Liste entfernt das Feld der Datei). Die Datei selbst bleibt unverändert, ID und Lernstand bleiben erhalten. Eigene Karten (`u…`) werden direkt geändert; neue Karten bekommen die nächste freie ID `u01`, `u02` …, gelöschte IDs werden nie wiederverwendet.

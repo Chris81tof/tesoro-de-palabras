@@ -145,7 +145,7 @@ textarea.tall { min-height: 12rem; }
 .ld { padding: 4px 8px 12px 36px; font-size: .92rem; }
 .ld .acts { display: flex; gap: 8px; margin-top: 6px; }
 .lmore { text-align: center; margin: 10px 0; }
-.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.sr { position: absolute !important; left: 0; width: 1px !important; height: 1px !important; min-height: 0 !important; padding: 0 !important; border: 0 !important; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .edited { font-family: var(--sans); font-size: .75rem; border: 1px solid var(--ochre); border-radius: 4px; padding: 0 4px; }
 a.btnlink { display: inline-flex; align-items: center; justify-content: center; text-decoration: none; border: 1.5px solid var(--ink-2); border-radius: var(--radius); color: var(--ink); }
 
@@ -174,3 +174,8 @@ a.btnlink { display: inline-flex; align-items: center; justify-content: center; 
 
 .seg2 { flex-wrap: wrap; }
 .seg2 button { min-width: 0; padding: 0 8px; }
+
+/* Sicherung */
+.filebtn { display: flex; align-items: center; justify-content: center; min-height: var(--tap); padding: 0 16px; border: 1.5px solid var(--ink-2); border-radius: var(--radius); cursor: pointer; background: var(--paper); }
+.filebtn:focus-within, input.sr:focus-visible + .filebtn { outline: 3px solid var(--cobalt); outline-offset: 2px; }
+h3 { font-size: 1rem; margin: 1.2rem 0 .3rem; }

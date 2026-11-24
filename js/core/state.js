@@ -17,9 +17,11 @@ export const DEFAULT_PREFS = {
 const clonePrefs = () => ({ ...DEFAULT_PREFS, budget: { ...DEFAULT_PREFS.budget }, newPerDay: { ...DEFAULT_PREFS.newPerDay } });
 
 export function createState() {
-  return { progress: {}, custom: [], deleted: [], fixes: {}, texts: [], textLog: {}, drafts: {}, examples: { removed: false, progress: {} }, prefs: clonePrefs() };
+  return { progress: {}, custom: [], deleted: [], fixes: {}, texts: [], textLog: {}, drafts: {}, examples: { removed: false, progress: {} }, backup: { last: 0 }, prefs: clonePrefs() };
 }
 
+// Schlüssel, die als Karten-ID nie vorkommen dürfen (Sicherungen kommen aus Dateien)
+const SAFE = (id) => !["__proto__", "constructor", "prototype"].includes(id);
 const num = (v, d = 0) => (typeof v === "number" && Number.isFinite(v) ? v : d);
 const isObj = (v) => v && typeof v === "object" && !Array.isArray(v);
 const normLevel = (l) => (LEVELS.includes(l) ? l : "");
@@ -54,24 +56,26 @@ export function cleanFix(f) {
 export function normalize(raw) {
   const s = createState();
   if (!isObj(raw)) return s;
-  if (isObj(raw.progress)) for (const [id, p] of Object.entries(raw.progress)) s.progress[id] = cleanProgress(p);
+  if (isObj(raw.progress)) for (const [id, p] of Object.entries(raw.progress)) if (SAFE(id)) s.progress[id] = cleanProgress(p);
   if (Array.isArray(raw.custom)) s.custom = raw.custom.filter((c) => isObj(c) && c.id && c.term && c.area in AREAS);
   if (isObj(raw.fixes)) {
     for (const [id, f] of Object.entries(raw.fixes)) {
+      if (!SAFE(id)) continue;
       const fix = cleanFix(f);
       if (fix) s.fixes[id] = fix;
     }
   }
   if (Array.isArray(raw.deleted)) s.deleted = raw.deleted.filter((id) => typeof id === "string");
   if (Array.isArray(raw.texts)) s.texts = raw.texts.filter((t) => isObj(t) && t.id && t.text && Array.isArray(t.gaps));
-  if (isObj(raw.textLog)) for (const [id, d] of Object.entries(raw.textLog)) if (typeof d === "number") s.textLog[id] = d;
+  if (isObj(raw.textLog)) for (const [id, d] of Object.entries(raw.textLog)) if (typeof d === "number" && SAFE(id)) s.textLog[id] = d;
   if (isObj(raw.drafts)) s.drafts = raw.drafts;
   if (isObj(raw.examples)) {
     s.examples.removed = raw.examples.removed === true;
     if (!s.examples.removed && isObj(raw.examples.progress)) {
-      for (const [id, p] of Object.entries(raw.examples.progress)) s.examples.progress[id] = cleanProgress(p);
+      for (const [id, p] of Object.entries(raw.examples.progress)) if (SAFE(id)) s.examples.progress[id] = cleanProgress(p);
     }
   }
+  if (isObj(raw.backup)) s.backup.last = num(raw.backup.last);
   if (isObj(raw.prefs)) {
     const p = raw.prefs;
     const d = s.prefs;
