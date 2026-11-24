@@ -18,6 +18,7 @@ import * as produce from "../exercises/produce.js";
 import * as cloze from "./cloze.js";
 import * as passive from "./passive.js";
 import { needArea } from "./today.js";
+import { ART } from "../core/art.js";
 import { openEditor, editBtn, bindEdit } from "./editor.js";
 import { canSpeak, say, stopSpeaking, speechPlan } from "../core/speech.js";
 
@@ -208,8 +209,9 @@ function renderSession(root, app) {
   speakCard(box, app, c, s);
   const card = box.querySelector(".card");
   if (card) {
-    card.classList.add("editable");
-    card.insertAdjacentHTML("afterbegin", editBtn(c));
+    const pencil = editBtn(c);
+    if (pencil) card.classList.add("editable");
+    card.insertAdjacentHTML("afterbegin", pencil);
     bindEdit(card, () => { reset(); s.editing = c.id; s.rerender(); });
   }
 }
@@ -222,7 +224,7 @@ function renderSummary(box, root, app) {
       : "Für diese Auswahl gibt es keine passenden Karten.")
     : `Runde geschafft: ${s.right} richtig, ${s.wrong} zum Wiederholen.` +
       (s.avail > s.total ? ` In dieser Auswahl warten noch ${s.avail - s.total} weitere Karten.` : "");
-  box.innerHTML = `<div class="summary"><p>${esc(msg)}</p><div class="btnrow"><button type="button" class="primary" id="again">Neue Runde</button><button type="button" id="toPlan">Zum Tagesplan</button></div></div>`;
+  box.innerHTML = `<div class="summary">${s.total === 0 ? ART.sun : ART.star}<p>${esc(msg)}</p><div class="btnrow"><button type="button" class="primary" id="again">Neue Runde</button><button type="button" id="toPlan">Zum Tagesplan</button></div></div>`;
   box.querySelector("#again").addEventListener("click", () => { session = null; render(root, app); });
   box.querySelector("#toPlan").addEventListener("click", () => { session = null; app.go("today"); });
   box.querySelector("#again").focus();

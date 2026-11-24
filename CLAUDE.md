@@ -23,6 +23,7 @@ Der Umbauplan steht in `UMBAUPLAN.md`.
 - Lernstand im `localStorage` unter `tesoro-de-palabras-v1`; Sicherung `app: "tesoro-de-palabras"`, `format: 1`. Kein Import aus dem Englisch-Trainer.
 - **Service Worker:** Cache-Präfix `tesoro-de-palabras-`. Beide Apps liegen auf derselben Domain; der Aufräumcode löscht **nur** Caches mit diesem Präfix (Test dafür). Bei jeder Änderung an ausgelieferten Dateien `VERSION` erhöhen, neue Dateien in `FILES` eintragen (ein Test prüft das). Auf `localhost` wird der Service Worker nur mit `?sw` registriert.
 - Ansichten nur zeichnen lassen: testbare Logik gehört in `js/core/`. Tippflächen mindestens 44 px (`--tap`); neue Bereiche bei 320, 390 und 844 × 390 prüfen.
+- Stylesheets: `tokens.css` (Farben, Hell und zwei Dunkel-Blöcke, die gleich bleiben müssen), `base.css`, `components.css`, `tiles.css` (Kachelmuster). Neue Farben gehören in `tokens.css` und in die Kontrastliste in `tests/contrast.test.mjs`; Muster nur an den Stellen, die `tests/design.test.mjs` erlaubt.
 - Gestaltung: Azulejo-Look (Terrakotta, Ocker, Kobaltblau, Kalkweiß). Muster nur als Rahmen und Fugen, nie hinter Text. Textkontrast mindestens 4,5:1 in Hell und Dunkel. **Keine Information nur über Farbe** (immer auch Symbol oder Text).
 
 ## Bereiche

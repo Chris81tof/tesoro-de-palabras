@@ -11,6 +11,7 @@ import { exportData, backupName, parseBackup, markBackup, daysSinceBackup, descr
 import { cardPrompt, parseCards, summarizeImport, fixPrompt } from "../core/import.js";
 import { viewOf, regionLabel } from "../core/variants.js";
 import { openEditor } from "./editor.js";
+import { ART } from "../core/art.js";
 import { isEditable } from "../core/edit.js";
 import { PAGE, STAT_OPTS, filterCards, categoriesOf, statusLabel, nextShown, restCount, toggleOne, toggleIn, regionOptions, levelOptions, levelOf, isEdited } from "../core/library.js";
 
@@ -207,7 +208,7 @@ export function render(root, app) {
   h += list.length
     ? '<ul class="llist" id="llist">' + list.slice(0, shown).map((c) => rowHtml(app, c, day)).join("") + "</ul>" +
       (list.length > shown ? `<div id="lmore" class="lmore"><button type="button" id="lmoreBtn">${restCount(shown, list.length)} weitere Karten laden</button></div>` : "")
-    : `<p class="prompt">${inScope.length ? "Keine Karte passt zu dieser Auswahl." : "In diesem Bereich gibt es noch keine Karten."}</p>`;
+    : `<div class="empty">${ART.book}<p class="prompt">${inScope.length ? "Keine Karte passt zu dieser Auswahl." : "In diesem Bereich gibt es noch keine Karten. Lege eigene an oder importiere sie von Claude (Werkzeuge oben)."}</p></div>`;
   root.innerHTML = h;
 
   // Werkzeuge: immer nur eines offen

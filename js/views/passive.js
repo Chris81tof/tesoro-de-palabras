@@ -70,7 +70,7 @@ export function render(root, app, onEnd) {
     const tap = !pass.playing && pass.phase === 0;
     let h = `<div class="sessionbar"><h1 class="withicon">${icon("cards")}Passiv</h1><button type="button" class="small" id="pEnd">Beenden</button></div>` +
       `<p class="progress">Karte ${pass.i + 1} von ${pass.list.length} · ${pass.playing ? "läuft" : "pausiert"}</p>` +
-      `<div class="card editable${tap ? " flip" : ""}" id="pcard"${tap ? ' role="button" tabindex="0" aria-label="Bedeutung aufdecken"' : ""}>` +
+      `<div class="card${editBtn(c) ? " editable" : ""}${tap ? " flip" : ""}" id="pcard"${tap ? ' role="button" tabindex="0" aria-label="Bedeutung aufdecken"' : ""}>` +
       editBtn(c) + chip(c) + `<p class="term">${esc(shown.term)}</p>`;
     h += pass.phase === 1
       ? (c.de ? `<p class="de">${esc(c.de)}</p>` : "") + (c.prompt ? `<p class="prompt">${esc(c.prompt)}</p>` : "") +

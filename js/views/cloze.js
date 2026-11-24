@@ -139,7 +139,8 @@ export function renderText(root, app, rerender) {
     if (k % 2 === 0) { body += esc(p); return; }
     const n = Number(p);
     const cls = "gi" + (open.checked ? (open.res[n - 1]?.ok ? " good" : " bad") : "");
-    body += `<span class="num">${n}</span><input type="text" class="${cls}" id="gi${n}" lang="es" aria-label="Lücke ${n}" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="next" value="${esc(open.vals[n - 1] || "")}"${open.checked ? " readonly" : ""}>`;
+    body += `<span class="num">${n}</span><input type="text" class="${cls}" id="gi${n}" lang="es" aria-label="Lücke ${n}" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="next" value="${esc(open.vals[n - 1] || "")}"${open.checked ? " readonly" : ""}>` +
+      (open.checked ? `<span class="mk ${open.res[n - 1]?.ok ? "good" : "bad"}" aria-hidden="true">${open.res[n - 1]?.ok ? "✓" : "✗"}</span>` : "");
   });
 
   let h = `<div class="sessionbar"><h1 class="withicon">${icon("cloze")}Texte</h1><button type="button" class="small" id="clBack">Anderer Text</button></div>` +

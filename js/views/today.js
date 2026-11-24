@@ -11,6 +11,7 @@ import { start, startText } from "./practice.js";
 import { suggestTexts, textsOf } from "../core/texts.js";
 import { needsBackup, daysSinceBackup } from "../core/backup.js";
 import { openTool } from "./library.js";
+import { ART } from "../core/art.js";
 
 const BUDGETS = [10, 20, 30, 40, 60, 90];
 const NEW_PER_DAY = [3, 5, 10, 15, 20, 30];
@@ -48,9 +49,9 @@ export function render(root, app) {
     '<button type="button" class="small" id="rePlan">Neu planen</button></div>';
 
   if (!cards.length) {
-    h += '<p class="prompt">In diesem Bereich gibt es noch keine Karten. Unter „Sammlung“ kannst du später Karten hinzufügen (kommt in Schritt 6 bis 8).</p>';
+    h += `<div class="empty">${ART.book}<p class="prompt">In diesem Bereich gibt es noch keine Karten. Unter „Sammlung“ legst du eigene an oder importierst sie von Claude.</p></div>`;
   } else if (!plan.blocks.length) {
-    h += `<p class="prompt">Für heute ist nichts mehr fällig${plan.skippedNew ? ", und das Limit für neue Karten ist erreicht" : ""}. Du kannst unter „Üben“ selbst etwas wählen.</p>`;
+    h += `<div class="empty">${ART.sun}<p class="prompt">Für heute ist nichts mehr fällig${plan.skippedNew ? ", und das Limit für neue Karten ist erreicht" : ""}. Du kannst unter „Üben“ selbst etwas wählen.</p></div>`;
   } else {
     plan.blocks.forEach((b, i) => {
       const done = b.ids.filter((id) => prog(id) && prog(id).last === day).length;

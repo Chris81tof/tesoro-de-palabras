@@ -1,0 +1,84 @@
+/* Azulejo: Kacheln, Fugen und Fries. Alles aus CSS-Verläufen mit den Farben aus tokens.css, also ohne Bilddateien
+   und in Hell und Dunkel gleich. Muster stehen nur als Rahmen, Fries und Fuge, nie hinter Text. */
+
+:root {
+  --fries: 20px;
+  /* Rautengitter mit Punkt im Kreuzungspunkt: der Fries unter der Kopfzeile, über den Reitern und unter Überschriften */
+  --fries-bild:
+    radial-gradient(circle at 50% 50%, var(--ochre) 0 2.2px, transparent 2.7px),
+    linear-gradient(45deg, transparent 43%, var(--cobalt) 43% 57%, transparent 57%),
+    linear-gradient(-45deg, transparent 43%, var(--cobalt) 43% 57%, transparent 57%);
+}
+
+/* Fries unter der Kopfzeile und über den Reitern */
+#top::after, #tabs::before {
+  content: ""; display: block; height: 10px; margin: 0 -12px;
+  background: var(--fries-bild); background-size: var(--fries) var(--fries); background-position: 0 -5px; /* das mittlere Band: die Kreuzung mit dem Punkt */
+  border-top: 1.5px solid var(--cobalt); border-bottom: 1.5px solid var(--cobalt);
+}
+#tabs { flex-wrap: wrap; }
+#tabs::before { flex: 0 0 100%; height: 8px; margin: 0; border-top: 0; background-position: 0 -6px; }
+
+/* Überschrift mit kurzem Fries */
+h1 { position: relative; padding-bottom: 14px; font-weight: 700; letter-spacing: .01em; }
+h1::after {
+  content: ""; position: absolute; left: 0; bottom: 0; width: 80px; height: 8px;
+  background: var(--fries-bild); background-size: var(--fries) var(--fries); background-position: 0 -6px;
+  border-top: 1.5px solid var(--cobalt); border-bottom: 1.5px solid var(--cobalt);
+}
+.sessionbar h1 { margin-bottom: 8px; }
+
+/* Karte als Kachel: Kobaltrahmen, innen ein Ocker-Zierstreifen, vier Terrakotta-Punkte in den Ecken (im Innenabstand, nie unter Text) */
+.card {
+  border: 2px solid var(--cobalt); border-radius: 4px;
+  box-shadow: inset 0 0 0 3px var(--paper-2), inset 0 0 0 4.5px var(--ochre);
+  padding: 18px 18px 16px;
+  background-color: var(--paper-2);
+  background-image:
+    radial-gradient(circle at 10px 10px, var(--accent) 0 2.5px, transparent 3px),
+    radial-gradient(circle at calc(100% - 10px) 10px, var(--accent) 0 2.5px, transparent 3px),
+    radial-gradient(circle at 10px calc(100% - 10px), var(--accent) 0 2.5px, transparent 3px),
+    radial-gradient(circle at calc(100% - 10px) calc(100% - 10px), var(--accent) 0 2.5px, transparent 3px);
+}
+.card.editable { padding-right: 56px; }
+
+/* Lernstand-Kacheln mit Fuge */
+.tiles { gap: 6px; }
+.tile {
+  border: 2px solid var(--cobalt); border-radius: 3px; background: var(--paper-2);
+  box-shadow: inset 0 0 0 3px var(--paper-2), inset 0 0 0 4px var(--ochre);
+  padding: 12px 14px;
+}
+
+/* Zeilen als Fliesenreihe: dünne Fugen dazwischen */
+.block, .list li { border: 1.5px solid var(--cobalt); border-radius: 3px; box-shadow: 0 2px 0 var(--line); }
+.llist .lrow { border-bottom: 2px solid var(--line); }
+
+/* Knöpfe wie glasierte Fliesen */
+button { border-radius: 4px; box-shadow: 0 2px 0 var(--line); }
+button:active { box-shadow: none; transform: translateY(1px); }
+button.primary { border: 2px solid var(--accent); box-shadow: 0 2px 0 rgba(0, 0, 0, .28); }
+.areabar .seg button[aria-pressed="true"], .seg2 button[aria-pressed="true"] { box-shadow: inset 0 0 0 2px var(--ochre); }
+
+/* Reiter: der aktive hat Balken, Fettdruck und Zierpunkt, nicht nur eine andere Farbe */
+#tabs a[aria-current="page"] { box-shadow: inset 0 4px 0 var(--accent); }
+#tabs a[aria-current="page"] span::before { content: "◆ "; font-size: .6em; vertical-align: .15em; }
+
+/* Zeichnungen */
+.art { display: block; margin: 8px auto; width: 96px; height: 96px; }
+.art .c1 { fill: var(--cobalt); }
+.art .c2 { fill: var(--ochre); }
+.art .c3 { fill: var(--accent); }
+.art .p { fill: var(--paper); }
+.art .l { fill: none; stroke: var(--cobalt); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.art .lp { stroke: var(--paper); stroke-width: 2; stroke-linecap: round; }
+.art .la { fill: none; stroke: var(--accent); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.summary .art, .empty .art { margin-bottom: 4px; }
+.empty { text-align: center; padding: 10px 0; }
+
+/* Marke hinter einem Eingabefeld im Text: Zeichen statt nur Farbe */
+.mk { font-family: var(--sans); font-weight: 700; font-size: .9rem; margin: 0 2px; }
+.mk.good { color: var(--good); }
+.mk.bad { color: var(--bad); }
+
+@media (prefers-reduced-motion: reduce) { button:active { transform: none; } }
