@@ -18,8 +18,18 @@ test("jedes Icon ist ein PNG in der richtigen Größe, RGB ohne Alpha", () => {
   }
   assert.deepEqual(ICONS.map(([n, s]) => `${n}:${s}`), ["apple-touch-icon.png:180", "favicon-32.png:32", "icon-192.png:192", "icon-512.png:512", "icon-maskable-512.png:512"]);
 });
-test("die Dateien sind genau das, was das Skript erzeugt (nichts von Hand verändert)", () => {
-  for (const [name, size, kind] of ICONS) assert.ok(file(name).equals(iconBytes(size, kind)), name + ": node scripts/make-icons.mjs ausführen");
+// Die Pixel müssen dem Skript entsprechen; die gepackten Bytes können je nach zlib-Version (Mac, GitHub) abweichen.
+const pixels = (b) => inflateSync(b.subarray(b.indexOf("IDAT") + 4, b.indexOf("IEND") - 4));
+test("die Bilder sind genau das, was das Skript erzeugt (nichts von Hand verändert)", () => {
+  for (const [name, size, kind] of ICONS) {
+    const raw = pixels(file(name));
+    const rgb = rasterize(size, kind);
+    assert.equal(raw.length, size * (size * 3 + 1), name);
+    for (let y = 0; y < size; y++) {
+      assert.equal(raw[y * (size * 3 + 1)], 0, "Zeilenfilter 0");
+      assert.ok(raw.subarray(y * (size * 3 + 1) + 1, (y + 1) * (size * 3 + 1)).equals(rgb.subarray(y * size * 3, (y + 1) * size * 3)), `${name}: Zeile ${y} – node scripts/make-icons.mjs ausführen`);
+    }
+  }
 });
 test("PNG lässt sich entpacken und hat die erwarteten Farben (Kobalt am Rand, Papier innen, Terrakotta in der Mitte)", () => {
   const b = file("icon-512.png");
