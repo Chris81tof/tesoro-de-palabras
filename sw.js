@@ -3,8 +3,8 @@
 // Darum haben die Caches dieser App ein eigenes Präfix, und aufgeräumt werden nur Caches mit diesem Präfix.
 // Nach jeder Änderung an ausgelieferten Dateien: node scripts/stamp-sw.mjs (erhöht VERSION und trägt den Fingerabdruck ein).
 // tests/sw.test.mjs prüft, dass FILES genau zu den Dateien im Projekt passt und der Fingerabdruck stimmt.
-const VERSION = "3";
-const CONTENT = "6a7f59be3a97";
+const VERSION = "4";
+const CONTENT = "05e89dec75ff";
 const PREFIX = "tesoro-de-palabras-";
 const CACHE = PREFIX + VERSION;
 

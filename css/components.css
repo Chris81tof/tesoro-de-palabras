@@ -191,3 +191,8 @@ h3 { font-size: 1rem; margin: 1.2rem 0 .3rem; }
 .iconbtn.toggle { width: var(--tap); padding: 0; display: inline-flex; align-items: center; justify-content: center; }
 .sessionbar .acts { display: flex; gap: 6px; }
 input[type=range] { width: 100%; min-height: var(--tap); }
+
+/* Kopfzeile einer Übung: bei schmalen Bildschirmen rutschen die Knöpfe unter den Titel */
+.sessionbar { flex-wrap: wrap; }
+.sessionbar h1 { flex: 1 1 auto; min-width: 0; overflow-wrap: anywhere; }
+.sessionbar .acts { margin-left: auto; }
