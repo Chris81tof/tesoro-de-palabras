@@ -29,7 +29,7 @@ function full() {
   s.textLog = { i1: D, xt1: D - 3 };
   s.drafts = { "allgemein-story": { ids: ["a01"], text: "hola", sel: { a01: "ok" }, settled: false } };
   s.examples = { removed: false, progress: { x01: s.examples.progress.x01 } };
-  s.prefs = { ...s.prefs, area: "schule", variant: "latam", country: "mx", strictAccents: true, meaningDir: "es-de", theme: "dark", speak: false, voice: "Paulina", rate: 1.1, budget: { allgemein: 25, schule: 15 }, newPerDay: { allgemein: 7, schule: 3 } };
+  s.prefs = { ...s.prefs, area: "schule", variant: "latam", country: "mx", strictAccents: true, meaningDir: "es-de", theme: "dark", speak: false, voices: { es: "Mónica", latam: "Paulina" }, rate: 1.1, budget: { allgemein: 25, schule: 15 }, newPerDay: { allgemein: 7, schule: 3 } };
   markBackup(s, 1700000000000);
   return s;
 }

@@ -179,3 +179,15 @@ a.btnlink { display: inline-flex; align-items: center; justify-content: center; 
 .filebtn { display: flex; align-items: center; justify-content: center; min-height: var(--tap); padding: 0 16px; border: 1.5px solid var(--ink-2); border-radius: var(--radius); cursor: pointer; background: var(--paper); }
 .filebtn:focus-within, input.sr:focus-visible + .filebtn { outline: 3px solid var(--cobalt); outline-offset: 2px; }
 h3 { font-size: 1rem; margin: 1.2rem 0 .3rem; }
+
+/* Sprachausgabe */
+.voices li { align-items: center; }
+.voices .pick { display: flex; align-items: center; gap: 10px; flex: 1; min-height: var(--tap); cursor: pointer; }
+.voices .pick input { width: 22px; height: 22px; flex: none; }
+.steps { padding-left: 22px; }
+.steps li { margin: 6px 0; }
+.speakbtn { margin-top: 8px; display: inline-flex; align-items: center; gap: 6px; }
+.toggle[aria-pressed="true"] { background: var(--cobalt); border-color: var(--cobalt); color: var(--paper); }
+.iconbtn.toggle { width: var(--tap); padding: 0; display: inline-flex; align-items: center; justify-content: center; }
+.sessionbar .acts { display: flex; gap: 6px; }
+input[type=range] { width: 100%; min-height: var(--tap); }

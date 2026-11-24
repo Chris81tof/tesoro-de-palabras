@@ -1,5 +1,5 @@
 // Passiv-Durchlauf (unter „Üben“): Wendung zeigen, dann Bedeutung und Beispielsatz. Verändert den Lernstand nicht.
-// Das Vorlesen kommt in Schritt 10 (core/speech.js); bis dahin läuft der Durchlauf nach Zeit.
+// Mit Vorlesen (core/speech.js) läuft der Durchlauf, bis Sprechen und Mindestzeit fertig sind; ohne nach Zeit.
 import { esc, shuffle } from "../core/dom.js";
 import { icon } from "../core/icons.js";
 import { canSpeak, say, stopSpeaking, spokenTerm, spokenSentence } from "../core/speech.js";
@@ -34,7 +34,7 @@ export function renderSetup(area, app, onStart) {
     `<label>Reihenfolge <select id="pOrder"><option value="seq"${opts.order === "seq" ? " selected" : ""}>Wie in der Sammlung</option><option value="random"${opts.order === "random" ? " selected" : ""}>Zufällig</option></select></label>` +
     `<label>Tempo <select id="pTempo">${TEMPI.map((t) => `<option value="${t}"${t === opts.tempo ? " selected" : ""}>${t} Sekunden pro Karte</option>`).join("")}</select></label>` +
     "</div>" +
-    `<label class="check"><input type="checkbox" id="pSpeak"${prefs.speak && canSpeak() ? " checked" : ""}${canSpeak() ? "" : " disabled"}> Spanisch vorlesen${canSpeak() ? "" : " (kommt mit Schritt 10)"}</label>` +
+    `<label class="check"><input type="checkbox" id="pSpeak"${prefs.speak && canSpeak() ? " checked" : ""}${canSpeak() ? "" : " disabled"}> Spanisch vorlesen${canSpeak() ? "" : " (in diesem Browser nicht möglich)"}</label>` +
     '<div class="btnrow"><button type="button" class="primary" id="pGo">Passiv-Durchlauf starten</button></div>';
   area.querySelector("#pCat").addEventListener("change", (e) => { opts.cat = e.target.value; });
   area.querySelector("#pOrder").addEventListener("change", (e) => { opts.order = e.target.value; });
@@ -108,7 +108,7 @@ export function render(root, app, onEnd) {
     let pending = 2;
     const gate = () => { if (tok === pass.token && pass.playing && --pending === 0) reveal(tok, c, T); };
     later(gate, T * 0.45);
-    say(spokenTerm(c), prefs, gate);
+    say(spokenTerm({ term: viewOf(c, prefs).shown.term }), prefs, gate);
   };
   const reveal = (tok, c, T) => {
     pass.phase = 1;

@@ -11,6 +11,7 @@ import * as statsView from "./views/stats.js";
 import * as libraryView from "./views/library.js";
 import { applyTheme } from "./core/theme.js";
 import { stage5Ids } from "./core/texts.js";
+import { initVoices } from "./core/speech.js";
 
 const TABS = [
   { id: "today", label: "Heute", view: todayView },
@@ -80,6 +81,7 @@ async function boot() {
   }
 
   const setTopH = () => document.documentElement.style.setProperty("--topH", top.offsetHeight + "px");
+  initVoices();
   drawTop();
   setTopH();
   window.addEventListener("resize", setTopH);

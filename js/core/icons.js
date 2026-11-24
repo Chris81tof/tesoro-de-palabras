@@ -23,6 +23,7 @@ const P = {
   rewrite: '<path d="M4 6h9M4 10h6M4 14h4M4 18h7"/><path d="M19.8 14.5A5 5 0 1 1 18 9"/><path d="M15.5 8.2 18.2 9l.4-2.8"/>',
   produce: '<path d="M5 19.5 6 15 17 4a2.1 2.1 0 0 1 3 3L9 18Z"/><path d="M4 21h16"/>',
   cloze: '<rect x="4" y="3.5" width="16" height="17" rx=".5"/><path d="M7.5 8h9M7.5 12h3M14 12h2.5M7.5 16h9"/><rect x="11" y="10.3" width="2.4" height="3.4" stroke-dasharray="1.5 1"/>',
+  speaker: '<path d="M4 9.5h3.5L12 6v12l-4.5-3.5H4Z"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/>',
   tile: '<rect x="4" y="4" width="16" height="16"/><path d="M12 4v16M4 12h16"/>',
   edit: '<path d="M4.5 19.5l.9-4L16.2 4.7a2.1 2.1 0 0 1 3 3L8.4 18.6Z"/><path d="M14.5 6.5l3 3"/>',
   ok: '<path d="M4.5 12.5l5 5 10-11"/>',

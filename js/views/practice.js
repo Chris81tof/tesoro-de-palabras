@@ -19,6 +19,7 @@ import * as cloze from "./cloze.js";
 import * as passive from "./passive.js";
 import { needArea } from "./today.js";
 import { openEditor, editBtn, bindEdit } from "./editor.js";
+import { canSpeak, say, stopSpeaking, speechPlan } from "../core/speech.js";
 
 const EX = { meaning, cards, explain, choice, gap, translate, error, rewrite, produce };
 const SCOPES = { due: "Heute fällig", open: "Alle nicht gemeisterten", problem: "Nur problematische", all: "Alle Karten" };
@@ -54,7 +55,7 @@ export function pickProblems(app) {
 }
 
 // Beim Wechsel des Reiters: Passiv-Durchlauf anhalten
-export function leave() { passive.stop(); }
+export function leave() { passive.stop(); stopSpeaking(); lastSpoken = ""; }
 
 function eligible(app) {
   const all = app.cards();
@@ -92,6 +93,26 @@ export function render(root, app) {
   else if (pick.mode === "cloze" && cloze.isOpen(app.state.prefs.area)) cloze.renderText(root, app, () => render(root, app));
   else if (pick.mode === "passive" && passive.isRunning()) passive.render(root, app, () => render(root, app));
   else renderPicker(root, app);
+}
+
+// Was gerade vorgelesen wurde; verhindert doppeltes Sprechen beim Neuzeichnen
+let lastSpoken = "";
+
+function speakCard(box, app, c, s) {
+  if (!canSpeak()) return;
+  const { prefs } = app.state;
+  const sp = speechPlan(s.mode, c, s, prefs);
+  const k = sp && sp.t ? s.mode + c.id + sp.k : "";
+  if (k !== lastSpoken) {
+    lastSpoken = k;
+    stopSpeaking();
+    if (k) say(sp.t, prefs);
+  }
+  const card = box.querySelector(".card");
+  if (k && card && prefs.speak) {
+    card.insertAdjacentHTML("beforeend", `<button type="button" class="small speakbtn" id="replay">${icon("speaker")} Anhören</button>`);
+    card.querySelector("#replay").addEventListener("click", (e) => { e.stopPropagation(); say(sp.t, prefs); });
+  }
 }
 
 const modeBtn = (m, label) =>
@@ -142,9 +163,20 @@ function renderPicker(root, app) {
 function renderSession(root, app) {
   const s = session;
   const M = MODES[s.mode];
+  const { prefs } = app.state;
+  const speakBtn = canSpeak()
+    ? `<button type="button" class="small toggle iconbtn" id="spk" aria-pressed="${prefs.speak}" aria-label="Spanisch vorlesen">${icon("speaker")}</button>`
+    : "";
   root.innerHTML = `<div class="sessionbar"><h1 class="withicon">${icon(s.mode)}${esc(M.label)}</h1>` +
-    '<div class="acts"><button type="button" class="small" id="stop">Beenden</button></div></div><div id="study" aria-live="polite"></div>';
-  root.querySelector("#stop").addEventListener("click", () => { session = null; render(root, app); });
+    `<div class="acts">${speakBtn}<button type="button" class="small" id="stop">Beenden</button></div></div><div id="study" aria-live="polite"></div>`;
+  root.querySelector("#stop").addEventListener("click", () => { session = null; leave(); render(root, app); });
+  root.querySelector("#spk")?.addEventListener("click", () => {
+    prefs.speak = !prefs.speak;
+    app.save();
+    if (!prefs.speak) stopSpeaking();
+    lastSpoken = "";
+    renderSession(root, app);
+  });
   const box = root.querySelector("#study");
   const byId = new Map(app.cards().map((c) => [c.id, c]));
 
@@ -173,6 +205,7 @@ function renderSession(root, app) {
     return;
   }
   EX[s.mode].render(box, c, s);
+  speakCard(box, app, c, s);
   const card = box.querySelector(".card");
   if (card) {
     card.classList.add("editable");

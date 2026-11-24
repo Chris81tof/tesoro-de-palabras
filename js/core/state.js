@@ -9,12 +9,12 @@ export const GESAMT = "gesamt";
 
 export const DEFAULT_PREFS = {
   area: "allgemein", variant: "es", country: "", strictAccents: false, theme: "auto", meaningDir: "de-es",
-  speak: true, voice: "", rate: 0.92,
+  speak: true, voices: { es: "", latam: "" }, rate: 0.92,
   budget: { allgemein: 40, schule: 20 },
   newPerDay: { allgemein: 10, schule: 5 }
 };
 
-const clonePrefs = () => ({ ...DEFAULT_PREFS, budget: { ...DEFAULT_PREFS.budget }, newPerDay: { ...DEFAULT_PREFS.newPerDay } });
+const clonePrefs = () => ({ ...DEFAULT_PREFS, voices: { ...DEFAULT_PREFS.voices }, budget: { ...DEFAULT_PREFS.budget }, newPerDay: { ...DEFAULT_PREFS.newPerDay } });
 
 export function createState() {
   return { progress: {}, custom: [], deleted: [], fixes: {}, texts: [], textLog: {}, drafts: {}, examples: { removed: false, progress: {} }, backup: { last: 0 }, prefs: clonePrefs() };
@@ -86,7 +86,7 @@ export function normalize(raw) {
     d.meaningDir = p.meaningDir === "es-de" ? "es-de" : "de-es";
     d.theme = p.theme === "light" || p.theme === "dark" ? p.theme : "auto";
     d.speak = typeof p.speak === "boolean" ? p.speak : d.speak;
-    d.voice = typeof p.voice === "string" ? p.voice : "";
+    if (isObj(p.voices)) for (const k of ["es", "latam"]) if (typeof p.voices[k] === "string") d.voices[k] = p.voices[k];
     d.rate = num(p.rate, d.rate);
     for (const a of Object.keys(AREAS)) {
       if (isObj(p.budget)) d.budget[a] = num(p.budget[a], d.budget[a]);
