@@ -94,6 +94,14 @@ Optional: `prompt` (spanische Erklärung), `wrong` (genau 3), `plain`, `reg`, `r
 - Beim Import: Fehler pro Text, gültige Texte des Pakets bleiben importierbar; „Wendung nicht erkannt“ ist nur eine Warnung. Schultexte mit möglichen Eigennamen werden abgelehnt.
 - Stufe 5 (Texte, Umformulieren, Satz schreiben) nutzt nur Karten, die in einem Text vorkommen. Eine Vollabdeckung wird nicht verlangt.
 
+## Veröffentlichung
+
+- Repository: `Chris81tof/tesoro-de-palabras` (öffentlich), Seite: https://chris81tof.github.io/tesoro-de-palabras/. Ein Push auf `main` startet `.github/workflows/pages.yml`: erst `node --test`, nur bei Erfolg wird veröffentlicht.
+- **Jeder Push und jede Veröffentlichung braucht vorher die ausdrückliche Zustimmung des Nutzers**, auch bei reinen Änderungen an Dokumenten (der Push startet die Veröffentlichung).
+- Vor dem Push: `node scripts/stamp-sw.mjs` und `node --test`. Commit-Adresse ist die GitHub-noreply-Adresse (lokal in der Git-Konfiguration eingestellt), nie die private Adresse.
+- Ein erneutes „Re-run“ eines Laufs kann das Pages-Paket doppelt hochladen und scheitern; dann einen frischen Lauf starten (`gh workflow run pages.yml`).
+- Beide Apps (Englisch-Trainer und diese) liegen auf `chris81tof.github.io` und teilen sich Gerätespeicher und Cache-Speicher; Schlüssel und Cache-Präfixe sind darum verschieden.
+
 ## Tests
 
 - `node --test` startet alle Tests in `tests/`, ohne Pakete.

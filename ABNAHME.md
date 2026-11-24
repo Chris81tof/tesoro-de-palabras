@@ -63,7 +63,7 @@ Letzter Lauf: **keine Befunde** bei 320 × 640 (hell und dunkel), 390 × 844 (he
 
 ## 2. Das prüfst du auf dem iPhone
 
-Link zum Entwicklungsserver (nur im selben WLAN, solange er läuft): `http://<Adresse des Macs>:8123`. Starten mit `node scripts/serve.mjs`, die Adresse steht dann im Terminal.
+Die veröffentlichte App: https://chris81tof.github.io/tesoro-de-palabras/ (hier geht Offline). Der Entwicklungsserver (`node scripts/serve.mjs`, nur im selben WLAN, ohne Offline) zeigt Änderungen, bevor sie veröffentlicht sind.
 
 1. **Beispielkarten gegenlesen:** `Beispiele-zum-Pruefen.md` (Spanisch, Regionsangaben, vulgäre Formen, Ablenker). Fehler direkt in `data/beispiel-karten.json` oder `data/texts.json` melden oder ändern.
 2. **Homebildschirm:** Safari › Teilen › „Zum Home-Bildschirm“. Das Symbol zeigt die Kachel mit dem Stern, die App öffnet ohne Safari-Leiste.
@@ -76,11 +76,11 @@ Link zum Entwicklungsserver (nur im selben WLAN, solange er läuft): `http://<Ad
 9. **Import:** Prompt kopieren, in Claude einfügen, Antwort zurückkopieren. Werden Fehler pro Karte gezeigt, und die gültigen Karten übernommen?
 10. **Sicherung:** „Teilen oder in Dateien sichern“ nutzen, Datei in „Dateien“ ansehen, danach „Wiederherstellen“ mit dieser Datei und „Rückgängig“.
 11. **Querformat** und kleine Anzeige (iPhone SE): nichts abgeschnitten, nichts läuft seitlich über?
-12. **Offline:** erst nach der Veröffentlichung (https) möglich. Flugmodus an, App vom Homebildschirm öffnen, Übung machen.
+12. **Offline:** Die App unter https://chris81tof.github.io/tesoro-de-palabras/ in Safari öffnen, einmal kurz warten, dann „Zum Home-Bildschirm“. Flugmodus an, App vom Homebildschirm öffnen, eine Übung machen. Danach Flugmodus aus.
 
 ## 3. Bekannte Grenzen und offene Punkte
 
-- **Offline und Homebildschirm-Aktualisierung sind noch nicht auf einem Gerät geprüft.** Der Service Worker braucht https; er wird getestet, wenn die App veröffentlicht ist (Schritt 14, nur nach deiner Rückfrage). Im eingebauten Browser ließ sich kein Service Worker registrieren, darum läuft er nur in der Testumgebung.
+- **Veröffentlicht** unter https://chris81tof.github.io/tesoro-de-palabras/. Im Browser unter https geprüft: Der Service Worker registriert sich, 65 Dateien liegen im Cache, beim zweiten Besuch kommen 55 Ressourcen vom Service Worker. **Offline im Flugmodus auf dem iPhone ist noch nicht ausprobiert** (Punkt 12 der Checkliste), ebenso die Aktualisierung nach einer neuen Version.
 - **Nicht im Browser geprüft:** Herunterladen und Teilen einer Sicherung, das tatsächliche Anhören der Stimmen, das Homebildschirm-Symbol.
 - **Es gibt noch keine echten Karten.** `data/cards.json` ist leer, es gibt nur die zehn Beispielkarten. Echte Karten kommen über Formular oder Import in deinen Gerätespeicher. Auf Wunsch übernimmt Claude Code sie später fest in `data/cards.json` (nur auf Anweisung).
 - **Stufe 5 braucht Texte:** Umformulieren, Satz schreiben und Texte gibt es nur für Karten, die in einem Text vorkommen. Neue Texte holst du per Prompt bei Claude (Üben › Texte).
