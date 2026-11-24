@@ -82,12 +82,29 @@ async function boot() {
 
   const setTopH = () => document.documentElement.style.setProperty("--topH", top.offsetHeight + "px");
   initVoices();
+  registerOffline();
   drawTop();
   setTopH();
   window.addEventListener("resize", setTopH);
   window.addEventListener("hashchange", show);
   document.addEventListener("keydown", practiceView.onKey);
   show();
+}
+
+// Offline-Betrieb über sw.js. Beim Entwickeln auf localhost nur mit ?sw, damit nichts Altes hängen bleibt.
+// Service Worker brauchen eine sichere Verbindung (https oder localhost); über http im WLAN gibt es keinen Offline-Betrieb.
+function registerOffline() {
+  if (!("serviceWorker" in navigator)) return;
+  if (location.hostname === "localhost" && !new URLSearchParams(location.search).has("sw")) return;
+  const hadController = !!navigator.serviceWorker.controller;
+  navigator.serviceWorker.register("sw.js").catch(() => { /* ohne Offline-Betrieb weiter */ });
+  // Eine neue Fassung ist installiert: Hinweis zum Neuladen (nicht beim allerersten Installieren).
+  navigator.serviceWorker.addEventListener("controllerchange", () => {
+    if (!hadController || $("update")) return;
+    document.body.insertAdjacentHTML("beforeend",
+      '<div id="update" class="toast" role="status">Neue Version geladen. <button type="button" class="small primary">Neu laden</button></div>');
+    $("update").querySelector("button").addEventListener("click", () => location.reload());
+  });
 }
 
 boot();
